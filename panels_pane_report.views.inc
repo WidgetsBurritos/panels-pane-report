@@ -54,7 +54,7 @@ function _panels_pane_report_view_panels_pane_report() {
 
   /* Display: Master */
   $handler = $view->new_display('default', 'Master', 'default');
-  $handler->display->display_options['title'] = 'Panels Report';
+  $handler->display->display_options['title'] = 'Panels Pane Report';
   $handler->display->display_options['use_more_always'] = FALSE;
   $handler->display->display_options['access']['type'] = 'perm';
   $handler->display->display_options['access']['perm'] = 'access panels pane report';
