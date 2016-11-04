@@ -1,0 +1,101 @@
+<?php
+/**
+ * @file
+ * Rackspace Panel Report Unit Tests.
+ */
+
+/**
+ * Unit tests for the Rackspace Panel Reports.
+ *
+ * @ingroup Rackspace
+ */
+class RackspacePanelReportTestCase extends DrupalUnitTestCase {
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Rackspace Panel Reports Unit Tests',
+      'description' => 'Test panel report functionality',
+      'group' => 'Rackspace',
+    );
+  }
+
+  /**
+   * Include the necessary files for unit testing.
+   */
+  public function setUp() {
+    module_load_include('inc', 'rs_reports', 'src/report.interface');
+    module_load_include('inc', 'rs_reports', 'src/panel_report.class');
+    module_load_include('inc', 'rs_reports', 'src/views.handlers');
+    parent::setUp('rs_reports');
+  }
+
+  /**
+   * Test RackspacePanelReport::retrievePageStorageIdsForInstance() output.
+   */
+  public function testStorageIdIsNumeric() {
+    $instance_info = ['panel' => (object) ['storage_id' => 3167]];
+    $pane_mapping = [];
+    $expected = [3167];
+
+    $this->assertEqual($expected, PanelsPaneReport::retrievePageStorageIdsForInstance($instance_info, $pane_mapping));
+  }
+
+  /**
+   * Test RackspacePanelReport::retrievePageStorageIdsForInstance() output.
+   */
+  public function testPaneMapInstancesExist() {
+    $instance_info = ['panel' => (object) ['storage_id' => 'some_mini_panel']];
+    $pane_mapping = [
+      'some_mini_panel' => [
+        'instances' => [
+          ['panel' => (object) ['storage_id' => 3167]],
+          ['panel' => (object) ['storage_id' => 5100]],
+          ['panel' => (object) ['storage_id' => 9033]],
+        ]
+      ]
+    ];
+    $expected = [3167, 5100, 9033];
+
+    $this->assertEqual($expected, PanelsPaneReport::retrievePageStorageIdsForInstance($instance_info, $pane_mapping));
+  }
+
+  /**
+   * Test RackspacePanelReport::retrievePageStorageIdsForInstance() output.
+   */
+  public function testOnlyRelevantPaneMapInstancesExist() {
+    $instance_info = ['panel' => (object) ['storage_id' => 'another_mini_panel']];
+    $pane_mapping = [
+      'some_mini_panel' => [
+        'instances' => [
+          ['panel' => (object) ['storage_id' => 3167]],
+          ['panel' => (object) ['storage_id' => 5100]],
+          ['panel' => (object) ['storage_id' => 9033]],
+        ]
+      ],
+      'another_mini_panel' => [
+        'instances' => [
+          ['panel' => (object) ['storage_id' => 9500]],
+          ['panel' => (object) ['storage_id' => 1233]],
+        ]
+      ]
+    ];
+    $expected = [9500, 1233];
+
+    $this->assertEqual($expected, PanelsPaneReport::retrievePageStorageIdsForInstance($instance_info, $pane_mapping));
+  }
+
+  /**
+   * Test RackspacePanelReport::retrievePageStorageIdsForInstance() output.
+   */
+  public function testUnreferencedMiniPanelReportsCorrectly() {
+    $instance_info = ['panel' => (object) ['storage_id' => 'some_mini_panel']];
+    $pane_mapping = ['some_mini_panel' => []];
+    $expected = [PanelsPaneReport::NODE_UNREFERENCED];
+
+    $this->assertEqual($expected, PanelsPaneReport::retrievePageStorageIdsForInstance($instance_info, $pane_mapping));
+  }
+
+}

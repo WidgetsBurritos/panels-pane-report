@@ -1,0 +1,173 @@
+<?php
+/**
+ * @file
+ * Install file for the Panels Pane Report module.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function panels_pane_report_schema() {
+  $schema = array();
+
+  // Add in URL Report table to schema.
+  $schema['panels_pane_report'] = array(
+    'description' => 'Storage for the most recent Panels pane report.',
+    'fields' => array(
+      'node_type' => array(
+        'description' => 'Indicates the type of node.',
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'pattern_nid' => array(
+        'description' => 'Maps to the NID for the pattern.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'unsigned' => TRUE,
+        'default' => 0,
+      ),
+      'page_nid' => array(
+        'description' => 'Maps to the NID for the page.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'unsigned' => TRUE,
+        'default' => 0,
+      ),
+      'pattern_status' => array(
+        'description' => 'Pattern node status.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'unsigned' => TRUE,
+        'default' => 0,
+      ),
+      'page_status' => array(
+        'description' => 'Page node status.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'unsigned' => TRUE,
+        'default' => 0,
+      ),
+      'build_mode' => array(
+        'description' => 'Indicates the build mode of the pattern',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+    ),
+    'primary key' => array('pattern_nid', 'page_nid'),
+  );
+
+  return $schema;
+}
+
+/**
+ * Adds panels report functionality.
+ */
+function panels_pane_report_update_7100() {
+  // Add in URL Report table to schema.
+  $panel_report_schema = array(
+    'description' => 'Storage for the most recent Panels Pane Report.',
+    'fields' => array(
+      'node_type' => array(
+        'description' => 'Indicates the type of node.',
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'pattern_nid' => array(
+        'description' => 'Maps to the NID for the pattern.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'unsigned' => TRUE,
+        'default' => 0,
+      ),
+      'page_nid' => array(
+        'description' => 'Maps to the NID for the page.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'unsigned' => TRUE,
+        'default' => 0,
+      ),
+      'pattern_status' => array(
+        'description' => 'Pattern node status.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'unsigned' => TRUE,
+        'default' => 0,
+      ),
+      'page_status' => array(
+        'description' => 'Page node status.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'unsigned' => TRUE,
+        'default' => 0,
+      ),
+      'build_mode' => array(
+        'description' => 'Indicates the build mode of the pattern',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+    ),
+    'primary key' => array('pattern_nid', 'page_nid'),
+  );
+
+  db_create_table('panels_pane_report', $panel_report_schema);
+}
+
+/**
+ * Updates the panels report to support mini panels and blocks.
+ */
+function panels_pane_report_update_7101() {
+  $table = 'panels_pane_report';
+  db_drop_primary_key($table);
+  db_change_field($table, 'pattern_nid', 'pattern_storage_id', [
+    'description' => 'Maps to the storage id for the pattern.',
+    'type' => 'varchar',
+    'length' => 255,
+    'not null' => TRUE,
+    'default' => '',
+  ]);
+  db_change_field($table, 'page_nid', 'page_storage_id', [
+    'description' => 'Maps to the storage id for an individual pattern.',
+    'type' => 'varchar',
+    'length' => 255,
+    'not null' => TRUE,
+    'default' => '',
+  ]);
+
+  db_change_field($table, 'node_type', 'entity_type', [
+    'description' => 'Indicates the type of entity.',
+    'type' => 'varchar',
+    'length' => 32,
+    'not null' => TRUE,
+    'default' => '',
+  ]);
+  db_add_field($table, 'bundle', [
+    'description' => 'Node bundle (if applicable).',
+    'type' => 'varchar',
+    'length' => 255,
+    'not null' => TRUE,
+    'default' => '',
+  ]);
+  db_add_field($table, 'display_storage_type', [
+    'description' => 'Maps to the storage type for the display.',
+    'type' => 'varchar',
+    'length' => 255,
+    'not null' => TRUE,
+    'default' => '',
+  ]);
+  db_add_field($table, 'display_storage_id', [
+    'description' => 'Maps to the storage id for the display.',
+    'type' => 'varchar',
+    'length' => 255,
+    'not null' => TRUE,
+    'default' => '',
+  ]);
+  db_add_primary_key($table, ['entity_type', 'pattern_storage_id', 'page_storage_id', 'display_storage_id']);
+}

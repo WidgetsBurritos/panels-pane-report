@@ -1,0 +1,120 @@
+<?php
+/**
+ * @file
+ * Main file for the Panels Pane Report module.
+ */
+
+/**
+ * Implements hook_permission().
+ */
+function panels_pane_report_permission() {
+  $permissions['access panels pane report'] = [
+    'title' => t('Access Panels Pane Report'),
+    'description' => t('Provides access to panels pane report'),
+  ];
+
+  return $permissions;
+}
+
+/**
+ * Implements hook_views_api().
+ */
+function panels_pane_report_views_api() {
+  return array(
+    'api' => 3,
+    'path' => drupal_get_path('module', 'panels_pane_report'),
+  );
+}
+
+/**
+ * Implements hook_cronapi().
+ */
+function panels_pane_report_cronapi() {
+  $items = array();
+
+  // Run URL Report at 1am every morning.
+  $items['panels_pane_report'] = array(
+    'title' => t('Panels Pane Report'),
+    'callback' => 'panels_pane_report_run',
+    'sc:duler' => array(
+      'name' => 'crontab',
+      'crontab' => array(
+        'rules' => array('0 1 * * *'),
+      ),
+    ),
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function panels_pane_report_form_views_exposed_form_alter(&$form, &$form_state, $form_id) {
+  $id = str_replace('-', '_', $form['#id']);
+  $fn = __FUNCTION__ . '__' . $id;
+  if (function_exists($fn)) {
+    $fn($form, $form_state, $form_id);
+  }
+}
+
+/**
+ * Adds a 'Regenerate Report' button to the views form.
+ */
+function panels_pane_report_form_views_exposed_form_alter__views_exposed_form_panels_report_page(&$form, &$form_state, $form_id) {
+  $form['submit']['#value'] = t('Search');
+  $form['regenerate_report'] = [
+    '#type' => 'submit',
+    '#value' => t('Regenerate Report'),
+    '#submit' => array_merge(['panels_pane_report_run'], $form['#submit']),
+  ];
+}
+
+/**
+ * Callback to run the panels pane report.
+ */
+function panels_pane_report_run($form, &$form_state) {
+  PanelsPaneReport::runReport();
+  cache_clear_all('panels_pane_report:', 'cache_views_data', TRUE);
+}
+
+/**
+ * Implements hook_token_info().
+ */
+function panels_pane_report_token_info() {
+  return [
+    'types' => [
+      'rs_reports' => [
+        'name' => t('Panels Reports'),
+        'description' => t('Tokens related to panels reports.'),
+      ],
+    ],
+    'tokens' => [
+      'rs_reports' => [
+        'panels_report_last_run' => [
+          'name' => t('Panels Report - Last Run'),
+          'description' => t('Returns the time/date of the panels report last run.'),
+        ],
+      ],
+    ],
+  ];
+}
+
+/**
+ * Implements hook_tokens().
+ */
+function panels_pane_report_tokens($type, $tokens, array $data = array(), array $options = array()) {
+  $replacements = [];
+  if ($type == 'rs_reports') {
+    foreach ($tokens as $name => $original) {
+      switch ($name) {
+        case 'panels_report_last_run':
+          $last_run = variable_get(PanelsPaneReport::LAST_RUN_VARIABLE, -1);
+          $replacements[$original] = ($last_run >= 0) ? t('!ago ago', ['!ago' => format_interval(REQUEST_TIME - $last_run)]) : t('never');
+          break;
+      }
+    }
+  }
+
+  return $replacements;
+}
