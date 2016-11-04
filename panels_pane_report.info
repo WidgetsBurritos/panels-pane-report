@@ -5,9 +5,6 @@ package = Panels
 version = 7.x-1.0
 
 dependencies[] = panels
-; TODO: Make panels_mini optional
-dependencies[] = panels_mini
-; TODO: Make panels_node optional
 dependencies[] = panels_node
 dependencies[] = views
 
