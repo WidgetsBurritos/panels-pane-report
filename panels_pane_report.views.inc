@@ -5,6 +5,17 @@
  */
 
 /**
+ * Implements hook_views_pre_render(&$view).
+ */
+function panels_pane_report_views_pre_render(&$view) {
+  if ($view->name === 'panels_pane_report') {
+    $last_run = variable_get(PanelsPaneReport::LAST_RUN_VARIABLE, -1);
+    $last_run_pretty = ($last_run >= 0) ? t('!ago ago', ['!ago' => format_interval(REQUEST_TIME - $last_run)]) : t('never');
+    $view->header['area']->options['content'] = t('<strong>Report last ran: </strong> !last_run', ['!last_run' => $last_run_pretty]);
+  }
+}
+
+/**
  * Implements hook_views_data().
  */
 function panels_pane_report_views_data() {
@@ -20,21 +31,23 @@ function panels_pane_report_views_data() {
  * Implements hook_views_default_views().
  */
 function panels_pane_report_views_default_views() {
-  return [
-    'panels_report' => _panels_pane_report_view_panels_report(),
+  $views = [
+    'panels_pane_report' => _panels_pane_report_view_panels_pane_report(),
   ];
+
+  return $views;
 }
 
 /**
  * Returns the Panels report view.
  */
-function _panels_pane_report_view_panels_report() {
+function _panels_pane_report_view_panels_pane_report() {
   $view = new view();
-  $view->name = 'panels_report';
+  $view->name = 'panels_pane_report';
   $view->description = '';
   $view->tag = 'default';
   $view->base_table = 'panels_pane_report';
-  $view->human_name = 'Panels Report';
+  $view->human_name = 'Panels Pane Report';
   $view->core = 7;
   $view->api_version = '3.0';
   $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
@@ -46,10 +59,10 @@ function _panels_pane_report_view_panels_report() {
   $handler->display->display_options['access']['type'] = 'perm';
   $handler->display->display_options['access']['perm'] = 'access panels pane report';
   $handler->display->display_options['cache']['type'] = 'time';
-  $handler->display->display_options['cache']['results_lifespan'] = '518400';
-  $handler->display->display_options['cache']['results_lifespan_custom'] = '86400';
+  $handler->display->display_options['cache']['results_lifespan'] = '21600';
+  $handler->display->display_options['cache']['results_lifespan_custom'] = '0';
   $handler->display->display_options['cache']['output_lifespan'] = '-1';
-  $handler->display->display_options['cache']['output_lifespan_custom'] = '86400';
+  $handler->display->display_options['cache']['output_lifespan_custom'] = '0';
   $handler->display->display_options['query']['type'] = 'views_query';
   $handler->display->display_options['exposed_form']['type'] = 'basic';
   $handler->display->display_options['pager']['type'] = 'full';
@@ -66,7 +79,6 @@ function _panels_pane_report_view_panels_report() {
   $handler->display->display_options['header']['area']['table'] = 'views';
   $handler->display->display_options['header']['area']['field'] = 'area';
   $handler->display->display_options['header']['area']['empty'] = TRUE;
-  $handler->display->display_options['header']['area']['content'] = '<strong>Report last ran:</strong> [panels_pane_report:panels_report_last_run]';
   $handler->display->display_options['header']['area']['format'] = 'full_html';
   /* Field: Panels Pane Report: Bundle */
   $handler->display->display_options['fields']['bundle']['id'] = 'bundle';
@@ -100,7 +112,7 @@ function _panels_pane_report_view_panels_report() {
   $handler->display->display_options['fields']['pattern_status']['element_label_colon'] = FALSE;
   $handler->display->display_options['fields']['pattern_status']['type'] = 'unicode-yes-no';
   $handler->display->display_options['fields']['pattern_status']['not'] = 0;
-  /* Field: Broken/missing handler */
+  /* Field: Panels Pane Report: Pattern Path */
   $handler->display->display_options['fields']['pattern_storage_id']['id'] = 'pattern_storage_id';
   $handler->display->display_options['fields']['pattern_storage_id']['table'] = 'panels_pane_report';
   $handler->display->display_options['fields']['pattern_storage_id']['field'] = 'pattern_storage_id';
@@ -116,7 +128,7 @@ function _panels_pane_report_view_panels_report() {
   $handler->display->display_options['fields']['page_status']['element_label_colon'] = FALSE;
   $handler->display->display_options['fields']['page_status']['type'] = 'unicode-yes-no';
   $handler->display->display_options['fields']['page_status']['not'] = 0;
-  /* Field: Broken/missing handler */
+  /* Field: Panels Pane Report: Panel Page Path */
   $handler->display->display_options['fields']['page_storage_id']['id'] = 'page_storage_id';
   $handler->display->display_options['fields']['page_storage_id']['table'] = 'panels_pane_report';
   $handler->display->display_options['fields']['page_storage_id']['field'] = 'page_storage_id';
@@ -188,7 +200,7 @@ function _panels_pane_report_view_panels_report() {
     'pattern_storage_id' => 'pattern_storage_id',
     'page_storage_id' => 'page_storage_id',
   );
-  /* Filter criterion: Broken/missing handler */
+  /* Filter criterion: Panels Pane Report: Entity Type */
   $handler->display->display_options['filters']['entity_type']['id'] = 'entity_type';
   $handler->display->display_options['filters']['entity_type']['table'] = 'panels_pane_report';
   $handler->display->display_options['filters']['entity_type']['field'] = 'entity_type';
@@ -212,7 +224,7 @@ function _panels_pane_report_view_panels_report() {
     8 => 0,
     13 => 0,
   );
-  /* Filter criterion: Broken/missing handler */
+  /* Filter criterion: Panels Pane Report: Bundle */
   $handler->display->display_options['filters']['bundle']['id'] = 'bundle';
   $handler->display->display_options['filters']['bundle']['table'] = 'panels_pane_report';
   $handler->display->display_options['filters']['bundle']['field'] = 'bundle';
@@ -236,7 +248,7 @@ function _panels_pane_report_view_panels_report() {
     8 => 0,
     13 => 0,
   );
-  /* Filter criterion: Broken/missing handler */
+  /* Filter criterion: Panels Pane Report: Build Mode */
   $handler->display->display_options['filters']['build_mode']['id'] = 'build_mode';
   $handler->display->display_options['filters']['build_mode']['table'] = 'panels_pane_report';
   $handler->display->display_options['filters']['build_mode']['field'] = 'build_mode';
@@ -310,7 +322,7 @@ function _panels_pane_report_view_panels_report() {
     8 => 0,
     13 => 0,
   );
-  /* Filter criterion: Broken/missing handler */
+  /* Filter criterion: Panels Pane Report: Display Storage Type */
   $handler->display->display_options['filters']['display_storage_type']['id'] = 'display_storage_type';
   $handler->display->display_options['filters']['display_storage_type']['table'] = 'panels_pane_report';
   $handler->display->display_options['filters']['display_storage_type']['field'] = 'display_storage_type';
@@ -336,12 +348,14 @@ function _panels_pane_report_view_panels_report() {
 
   /* Display: Page */
   $handler = $view->new_display('page', 'Page', 'page');
-  $handler->display->display_options['path'] = 'admin/reports/panels-report';
+  $handler->display->display_options['path'] = 'admin/reports/panels-pane-report';
   $handler->display->display_options['menu']['type'] = 'normal';
-  $handler->display->display_options['menu']['title'] = 'Panels Report';
-  $handler->display->display_options['menu']['description'] = 'Browse the panels report.';
+  $handler->display->display_options['menu']['title'] = 'Panels Pane Report';
+  $handler->display->display_options['menu']['description'] = 'Browse the panels pane report.';
   $handler->display->display_options['menu']['weight'] = '0';
   $handler->display->display_options['menu']['name'] = 'management';
   $handler->display->display_options['menu']['context'] = 0;
   $handler->display->display_options['menu']['context_only_inline'] = 0;
+
+  return $view;
 }
