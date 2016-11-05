@@ -8,6 +8,6 @@ dependencies[] = panels
 dependencies[] = panels_node
 dependencies[] = views
 
-files[] = src/panel_report.class.inc
+files[] = src/panels_pane_report.class.inc
 files[] = src/views.handlers.inc
-files[] = tests/panel_report.test
+files[] = tests/panels_pane_report.unit.test

@@ -1,24 +1,24 @@
 <?php
 /**
  * @file
- * Rackspace Panel Report Unit Tests.
+ * Panels Pane Report Unit Tests.
  */
 
 /**
- * Unit tests for the Rackspace Panel Reports.
+ * Unit tests for the Panels Pane Report.
  *
- * @ingroup Rackspace
+ * @ingroup Panels Pane Report
  */
-class RackspacePanelReportTestCase extends DrupalUnitTestCase {
+class PanelsPaneReportUnitTestCase extends DrupalUnitTestCase {
 
   /**
    * {@inheritdoc}
    */
   public static function getInfo() {
     return array(
-      'name' => 'Rackspace Panel Reports Unit Tests',
-      'description' => 'Test panel report functionality',
-      'group' => 'Rackspace',
+      'name' => 'Panels Panel Report Unit Tests',
+      'description' => 'Test panels pane report functionality',
+      'group' => 'Panels Pane Report',
     );
   }
 
@@ -26,14 +26,14 @@ class RackspacePanelReportTestCase extends DrupalUnitTestCase {
    * Include the necessary files for unit testing.
    */
   public function setUp() {
-    module_load_include('inc', 'rs_reports', 'src/report.interface');
-    module_load_include('inc', 'rs_reports', 'src/panel_report.class');
-    module_load_include('inc', 'rs_reports', 'src/views.handlers');
-    parent::setUp('rs_reports');
+    module_load_include('inc', 'panels_pane_report', 'src/report.interface');
+    module_load_include('inc', 'panels_pane_report', 'src/panel_report.class');
+    module_load_include('inc', 'panels_pane_report', 'src/views.handlers');
+    parent::setUp('panels_pane_report');
   }
 
   /**
-   * Test RackspacePanelReport::retrievePageStorageIdsForInstance() output.
+   * Test PanelsPaneReport::retrievePageStorageIdsForInstance() output.
    */
   public function testStorageIdIsNumeric() {
     $instance_info = ['panel' => (object) ['storage_id' => 3167]];
@@ -44,7 +44,7 @@ class RackspacePanelReportTestCase extends DrupalUnitTestCase {
   }
 
   /**
-   * Test RackspacePanelReport::retrievePageStorageIdsForInstance() output.
+   * Test PanelsPaneReport::retrievePageStorageIdsForInstance() output.
    */
   public function testPaneMapInstancesExist() {
     $instance_info = ['panel' => (object) ['storage_id' => 'some_mini_panel']];
@@ -63,7 +63,7 @@ class RackspacePanelReportTestCase extends DrupalUnitTestCase {
   }
 
   /**
-   * Test RackspacePanelReport::retrievePageStorageIdsForInstance() output.
+   * Test PanelsPaneReport::retrievePageStorageIdsForInstance() output.
    */
   public function testOnlyRelevantPaneMapInstancesExist() {
     $instance_info = ['panel' => (object) ['storage_id' => 'another_mini_panel']];
@@ -88,7 +88,7 @@ class RackspacePanelReportTestCase extends DrupalUnitTestCase {
   }
 
   /**
-   * Test RackspacePanelReport::retrievePageStorageIdsForInstance() output.
+   * Test PanelsPaneReport::retrievePageStorageIdsForInstance() output.
    */
   public function testUnreferencedMiniPanelReportsCorrectly() {
     $instance_info = ['panel' => (object) ['storage_id' => 'some_mini_panel']];
