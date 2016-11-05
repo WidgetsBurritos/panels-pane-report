@@ -4,10 +4,17 @@
  * Main file for the Panels Pane Report module.
  */
 
+define('PANELS_PANE_REPORT_DEFAULT_CRON_INTERVAL', 0);
+
 /**
  * Implements hook_permission().
  */
 function panels_pane_report_permission() {
+  $permissions['administer panels pane report settings'] = array(
+    'title' => t('Administer Panels Pane Report Settings'),
+    'description' => t('Allows a user to update panels pane report settings'),
+  );
+
   $permissions['access panels pane report'] = array(
     'title' => t('Access Panels Pane Report'),
     'description' => t('Provides access to panels pane report'),
@@ -32,14 +39,16 @@ function panels_pane_report_views_api() {
 }
 
 /**
- * Implements hook_cronapi().
+ * Implements hook_cron().
  */
-function panels_pane_report_cronapi() {
-  $items = array();
-
-  // TODO: Setup cron in admin panel.
-
-  return $items;
+function panels_pane_report_cron() {
+  // Only run if within acceptable time window.
+  $interval = variable_get('panels_pane_report_cron_interval', PANELS_PANE_REPORT_DEFAULT_CRON_INTERVAL);
+  if ($interval > 0 && REQUEST_TIME >= variable_get('panels_pane_report_next_run', 0)) {
+    PanelsPaneReport::runReport();
+    cache_clear_all('panels_pane_report:', 'cache_views_data', TRUE);
+    variable_set('panels_pane_report_next_run', REQUEST_TIME + $interval);
+  }
 }
 
 /**
@@ -71,9 +80,27 @@ function panels_pane_report_form_views_exposed_form_alter__views_exposed_form_pa
  * Callback to run the panels pane report.
  */
 function panels_pane_report_run($form, &$form_state) {
-  // TODO: Allow cron access here.
   if (user_access('generate panels pane report')) {
     PanelsPaneReport::runReport();
     cache_clear_all('panels_pane_report:', 'cache_views_data', TRUE);
   }
+}
+
+/**
+ * Implements hook_menu().
+ */
+function panels_pane_report_menu() {
+  $items = array();
+
+  $items['admin/config/system/panels_pane_report'] = array(
+    'title' => 'Panels Pane Report',
+    'description' => 'Settings for the panels pane report',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('panels_pane_report_admin'),
+    'access arguments' => array('administer panels pane report settings'),
+    'file' => 'panels_pane_report.admin.inc',
+    'type' => MENU_NORMAL_ITEM,
+  );
+
+  return $items;
 }

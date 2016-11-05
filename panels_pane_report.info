@@ -2,6 +2,7 @@ name = Panels Pane Report
 description = "Generates usage reports for panels panes."
 core = 7.x
 package = Panels
+configure = admin/config/system/panels_pane_report
 
 dependencies[] = panels
 dependencies[] = panels_node
