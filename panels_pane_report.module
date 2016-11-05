@@ -13,6 +13,11 @@ function panels_pane_report_permission() {
     'description' => t('Provides access to panels pane report'),
   ];
 
+  $permissions['generate panels pane report'] = [
+    'title' => t('Generate Panels Pane Report'),
+    'description' => t('Allows a user to regenerated the panels pane report'),
+  ];
+
   return $permissions;
 }
 
@@ -52,18 +57,23 @@ function panels_pane_report_form_views_exposed_form_alter(&$form, &$form_state, 
  * Adds a 'Regenerate Report' button to the views form.
  */
 function panels_pane_report_form_views_exposed_form_alter__views_exposed_form_panels_pane_report_page(&$form, &$form_state, $form_id) {
-  $form['submit']['#value'] = t('Search');
-  $form['regenerate_report'] = [
-    '#type' => 'submit',
-    '#value' => t('Regenerate Report'),
-    '#submit' => array_merge(['panels_pane_report_run'], $form['#submit']),
-  ];
+  if (user_access('generate panels pane report')) {
+    $form['submit']['#value'] = t('Search');
+    $form['regenerate_report'] = [
+      '#type' => 'submit',
+      '#value' => t('Regenerate Report'),
+      '#submit' => array_merge(['panels_pane_report_run'], $form['#submit']),
+    ];
+  }
 }
 
 /**
  * Callback to run the panels pane report.
  */
 function panels_pane_report_run($form, &$form_state) {
-  PanelsPaneReport::runReport();
-  cache_clear_all('panels_pane_report:', 'cache_views_data', TRUE);
+  // TODO: Allow cron access here.
+  if (user_access('generate panels pane report')) {
+    PanelsPaneReport::runReport();
+    cache_clear_all('panels_pane_report:', 'cache_views_data', TRUE);
+  }
 }
