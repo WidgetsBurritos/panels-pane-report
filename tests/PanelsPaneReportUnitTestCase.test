@@ -26,8 +26,7 @@ class PanelsPaneReportUnitTestCase extends DrupalUnitTestCase {
    * Include the necessary files for unit testing.
    */
   public function setUp() {
-    module_load_include('inc', 'panels_pane_report', 'src/report.interface');
-    module_load_include('inc', 'panels_pane_report', 'src/panel_report.class');
+    module_load_include('inc', 'panels_pane_report', 'src/panels_pane_report.class');
     module_load_include('inc', 'panels_pane_report', 'src/views.handlers');
     parent::setUp('panels_pane_report');
   }

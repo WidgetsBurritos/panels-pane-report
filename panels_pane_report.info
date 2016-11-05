@@ -10,4 +10,4 @@ dependencies[] = views
 
 files[] = src/panels_pane_report.class.inc
 files[] = src/views.handlers.inc
-files[] = tests/panels_pane_report.unit.test
+files[] = tests/PanelsPaneReportUnitTestCase.test
