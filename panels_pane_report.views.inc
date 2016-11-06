@@ -10,8 +10,8 @@
 function panels_pane_report_views_pre_render(&$view) {
   if ($view->name === 'panels_pane_report') {
     $last_run = variable_get(PanelsPaneReport::LAST_RUN_VARIABLE, -1);
-    $last_run_pretty = ($last_run >= 0) ? t('!ago ago', ['!ago' => format_interval(REQUEST_TIME - $last_run)]) : t('never');
-    $view->header['area']->options['content'] = t('<strong>Report last ran: </strong> !last_run', ['!last_run' => $last_run_pretty]);
+    $last_run_pretty = ($last_run >= 0) ? t('!ago ago', array('!ago' => format_interval(REQUEST_TIME - $last_run))) : t('never');
+    $view->header['area']->options['content'] = t('<strong>Report last ran: </strong> !last_run', array('!last_run' => $last_run_pretty));
   }
 }
 
@@ -31,9 +31,9 @@ function panels_pane_report_views_data() {
  * Implements hook_views_default_views().
  */
 function panels_pane_report_views_default_views() {
-  $views = [
+  $views = array(
     'panels_pane_report' => _panels_pane_report_view_panels_pane_report(),
-  ];
+  );
 
   return $views;
 }

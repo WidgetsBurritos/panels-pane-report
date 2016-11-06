@@ -82,10 +82,10 @@ class panels_pane_report_pattern_storage_id_field extends views_handler_field {
   function render($values) {
     $storage_id = $values->panels_pane_report_pattern_storage_id;
     if ((string) $storage_id !== (string) PanelsPaneReport::NODE_UNREFERENCED) {
-      $options = [
+      $options = array(
         'query' => drupal_get_destination(),
-        'attributes' => ['target' => '_blank'],
-      ];
+        'attributes' => array('target' => '_blank'),
+      );
 
       switch ($values->panels_pane_report_entity_type) {
         case "node":
@@ -101,7 +101,7 @@ class panels_pane_report_pattern_storage_id_field extends views_handler_field {
           return l($storage_id, $path, $options);
 
         default:
-          watchdog('rs_reports', 'Unexpected entity type: !value', ['!value' => json_encode($values)], WATCHDOG_NOTICE);
+          watchdog('rs_reports', 'Unexpected entity type: !value', array('!value' => json_encode($values)), WATCHDOG_NOTICE);
       }
     }
 
@@ -126,10 +126,10 @@ class panels_pane_report_page_storage_id_field extends views_handler_field {
     else {
       $node_url = 'node/' . $values->panels_pane_report_page_storage_id;
 
-      return l(drupal_get_path_alias($node_url), $node_url, [
+      return l(drupal_get_path_alias($node_url), $node_url, array(
         'query' => drupal_get_destination(),
-        'attributes' => ['target' => '_blank'],
-      ]);
+        'attributes' => array('target' => '_blank'),
+      ));
     }
   }
 }

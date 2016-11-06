@@ -35,9 +35,9 @@ class PanelsPaneReportUnitTestCase extends DrupalUnitTestCase {
    * Test PanelsPaneReport::retrievePageStorageIdsForInstance() output.
    */
   public function testStorageIdIsNumeric() {
-    $instance_info = ['panel' => (object) ['storage_id' => 3167]];
-    $pane_mapping = [];
-    $expected = [3167];
+    $instance_info = array('panel' => (object) array('storage_id' => 3167));
+    $pane_mapping = array();
+    $expected = array(3167);
 
     $this->assertEqual($expected, PanelsPaneReport::retrievePageStorageIdsForInstance($instance_info, $pane_mapping));
   }
@@ -46,17 +46,17 @@ class PanelsPaneReportUnitTestCase extends DrupalUnitTestCase {
    * Test PanelsPaneReport::retrievePageStorageIdsForInstance() output.
    */
   public function testPaneMapInstancesExist() {
-    $instance_info = ['panel' => (object) ['storage_id' => 'some_mini_panel']];
-    $pane_mapping = [
-      'some_mini_panel' => [
-        'instances' => [
-          ['panel' => (object) ['storage_id' => 3167]],
-          ['panel' => (object) ['storage_id' => 5100]],
-          ['panel' => (object) ['storage_id' => 9033]],
-        ]
-      ]
-    ];
-    $expected = [3167, 5100, 9033];
+    $instance_info = array('panel' => (object) array('storage_id' => 'some_mini_panel'));
+    $pane_mapping = array(
+      'some_mini_panel' => array(
+        'instances' => array(
+          array('panel' => (object) array('storage_id' => 3167)),
+          array('panel' => (object) array('storage_id' => 5100)),
+          array('panel' => (object) array('storage_id' => 9033)),
+        )
+      )
+    );
+    $expected = array(3167, 5100, 9033);
 
     $this->assertEqual($expected, PanelsPaneReport::retrievePageStorageIdsForInstance($instance_info, $pane_mapping));
   }
@@ -65,23 +65,23 @@ class PanelsPaneReportUnitTestCase extends DrupalUnitTestCase {
    * Test PanelsPaneReport::retrievePageStorageIdsForInstance() output.
    */
   public function testOnlyRelevantPaneMapInstancesExist() {
-    $instance_info = ['panel' => (object) ['storage_id' => 'another_mini_panel']];
-    $pane_mapping = [
-      'some_mini_panel' => [
-        'instances' => [
-          ['panel' => (object) ['storage_id' => 3167]],
-          ['panel' => (object) ['storage_id' => 5100]],
-          ['panel' => (object) ['storage_id' => 9033]],
-        ]
-      ],
-      'another_mini_panel' => [
-        'instances' => [
-          ['panel' => (object) ['storage_id' => 9500]],
-          ['panel' => (object) ['storage_id' => 1233]],
-        ]
-      ]
-    ];
-    $expected = [9500, 1233];
+    $instance_info = array('panel' => (object) array('storage_id' => 'another_mini_panel'));
+    $pane_mapping = array(
+      'some_mini_panel' => array(
+        'instances' => array(
+          array('panel' => (object) array('storage_id' => 3167)),
+          array('panel' => (object) array('storage_id' => 5100)),
+          array('panel' => (object) array('storage_id' => 9033)),
+        )
+      ),
+      'another_mini_panel' => array(
+        'instances' => array(
+          array('panel' => (object) array('storage_id' => 9500)),
+          array('panel' => (object) array('storage_id' => 1233)),
+        )
+      )
+    );
+    $expected = array(9500, 1233);
 
     $this->assertEqual($expected, PanelsPaneReport::retrievePageStorageIdsForInstance($instance_info, $pane_mapping));
   }
@@ -90,9 +90,9 @@ class PanelsPaneReportUnitTestCase extends DrupalUnitTestCase {
    * Test PanelsPaneReport::retrievePageStorageIdsForInstance() output.
    */
   public function testUnreferencedMiniPanelReportsCorrectly() {
-    $instance_info = ['panel' => (object) ['storage_id' => 'some_mini_panel']];
-    $pane_mapping = ['some_mini_panel' => []];
-    $expected = [PanelsPaneReport::NODE_UNREFERENCED];
+    $instance_info = array('panel' => (object) array('storage_id' => 'some_mini_panel'));
+    $pane_mapping = array('some_mini_panel' => array());
+    $expected = array(PanelsPaneReport::NODE_UNREFERENCED);
 
     $this->assertEqual($expected, PanelsPaneReport::retrievePageStorageIdsForInstance($instance_info, $pane_mapping));
   }
