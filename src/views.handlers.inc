@@ -100,12 +100,10 @@ class panels_pane_report_pattern_storage_id_field extends views_handler_field {
           $path = 'admin/structure/mini-panels/list/' . $storage_id;
           return l($storage_id, $path, $options);
 
-        default:
-          watchdog('rs_reports', 'Unexpected entity type: !value', array('!value' => json_encode($values)), WATCHDOG_NOTICE);
       }
     }
 
-    return t('No reference');
+    return t('n/a');
   }
 }
 
