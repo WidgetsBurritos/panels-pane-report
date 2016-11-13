@@ -11,3 +11,4 @@ dependencies[] = views
 files[] = src/panels_pane_report.class.inc
 files[] = src/views.handlers.inc
 files[] = tests/PanelsPaneReportUnitTestCase.test
+files[] = tests/PanelsPaneReportWebTestCase.test

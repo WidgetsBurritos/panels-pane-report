@@ -1,0 +1,108 @@
+<?php
+/**
+ * @file
+ * Panels Pane Report Web Tests.
+ */
+
+/**
+ * Web tests for the Panels Pane Report.
+ *
+ * @ingroup Panels Pane Report
+ */
+class PanelsPaneReportWebTestCase extends DrupalWebTestCase {
+  protected $profile = 'testing';
+
+  /**
+   * Implements getInfo().
+   */
+  public static function getInfo() {
+    return array(
+      'name' => t('Web Test Cases'),
+      'description' => t('TODO: write me.'),
+      'group' => t('Panels Pane Report'),
+    );
+  }
+
+  /**
+   * Implements setUp().
+   */
+  function setUp() {
+    parent::setUp(array('panels_pane_report', 'panels_node', 'page_manager'));
+  }
+
+  /**
+   * Test report is accessible with permission.
+   */
+  public function testReportIsAccessible() {
+    $admin_user = $this->drupalCreateUser(array(
+      'access panels pane report',
+    ));
+
+    $this->drupalLogin($admin_user);
+    $this->drupalGet('admin/reports/panels-pane-report');
+    $this->assertText(t('Panels Pane Report'), 'Access allowed on panels pane report.');
+  }
+
+  /**
+   * Test report is inaccessible without permission.
+   */
+  public function testReportIsInaccessible() {
+    $admin_user = $this->drupalCreateUser(array());
+
+    $this->drupalLogin($admin_user);
+    $this->drupalGet('admin/reports/panels-pane-report');
+    $this->assertText(t('Access denied'), 'Access denied on panels pane report.');
+  }
+
+  /**
+   * Test report is accessible with permission.
+   */
+  public function testReportSettingsAreAccessible() {
+    $admin_user = $this->drupalCreateUser(array(
+      'administer panels pane report settings',
+    ));
+
+    $this->drupalLogin($admin_user);
+    $this->drupalGet('admin/config/system/panels_pane_report');
+    $this->assertText(t('Panels Pane Report'), 'Access allowed on panels pane report.');
+  }
+
+  /**
+   * Test report is inaccessible without permission.
+   */
+  public function testReportSettingsAreInaccessible() {
+    $admin_user = $this->drupalCreateUser(array());
+
+    $this->drupalLogin($admin_user);
+    $this->drupalGet('admin/config/system/panels_pane_report');
+    $this->assertText(t('Access denied'), 'Access denied on panels pane report.');
+  }
+
+  /**
+   * Test report can be regenerated with permission.
+   */
+  public function testReportCanBeRegenerated() {
+    $admin_user = $this->drupalCreateUser(array(
+      'access panels pane report',
+      'generate panels pane report',
+    ));
+
+    $this->drupalLogin($admin_user);
+    $this->drupalGet('admin/reports/panels-pane-report');
+    $this->assertField('edit-regenerate-report');
+  }
+
+  /**
+   * Test report can't be regenerated without permission.
+   */
+  public function testReportCantBeRegenerated() {
+    $admin_user = $this->drupalCreateUser(array(
+      'access panels pane report',
+    ));
+
+    $this->drupalLogin($admin_user);
+    $this->drupalGet('admin/reports/panels-pane-report');
+    $this->assertNoField('edit-regenerate-report');
+  }
+
+}
