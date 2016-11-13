@@ -5,7 +5,6 @@ package = Panels
 configure = admin/config/system/panels_pane_report
 
 dependencies[] = panels
-dependencies[] = panels_node
 dependencies[] = views
 
 files[] = src/panels_pane_report.class.inc
