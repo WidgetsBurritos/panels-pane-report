@@ -54,6 +54,13 @@ function panels_pane_report_schema() {
         'not null' => TRUE,
         'default' => '',
       ),
+      'style_mode' => array(
+        'description' => 'Indicates the style mode of the pane',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
       'bundle' => array(
         'description' => 'Node bundle (if applicable).',
         'type' => 'varchar',

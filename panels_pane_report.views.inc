@@ -52,6 +52,15 @@ function panels_pane_report_views_data() {
     'filter' => array('handler' => 'panels_pane_report_build_mode'),
   );
 
+  // The build mode field.
+  $data['panels_pane_report']['style_mode'] = array(
+    'title' => t('Style Mode'),
+    'help' => t('Indicates what style mode the node is rendered with.'),
+    'field' => array('handler' => 'views_handler_field'),
+    'sort' => array('handler' => 'views_handler_sort'),
+    'filter' => array('handler' => 'panels_pane_report_style_mode'),
+  );
+
   // The pattern storage id field.
   $data['panels_pane_report']['pattern_storage_id'] = array(
     'title' => t('Pattern Path'),
@@ -175,16 +184,27 @@ function _panels_pane_report_view_panels_pane_report() {
   $handler->display->display_options['fields']['build_mode']['id'] = 'build_mode';
   $handler->display->display_options['fields']['build_mode']['table'] = 'panels_pane_report';
   $handler->display->display_options['fields']['build_mode']['field'] = 'build_mode';
+  $handler->display->display_options['fields']['build_mode']['label'] = '';
   $handler->display->display_options['fields']['build_mode']['exclude'] = TRUE;
   $handler->display->display_options['fields']['build_mode']['alter']['alter_text'] = TRUE;
-  $handler->display->display_options['fields']['build_mode']['alter']['text'] = '<br />[[build_mode]]';
+  $handler->display->display_options['fields']['build_mode']['alter']['text'] = '<br />Build Mode: [build_mode]';
+  $handler->display->display_options['fields']['build_mode']['element_label_colon'] = FALSE;
+  /* Field: Panels Pane Report: Style Mode */
+  $handler->display->display_options['fields']['style_mode']['id'] = 'style_mode';
+  $handler->display->display_options['fields']['style_mode']['table'] = 'panels_pane_report';
+  $handler->display->display_options['fields']['style_mode']['field'] = 'style_mode';
+  $handler->display->display_options['fields']['style_mode']['label'] = '';
+  $handler->display->display_options['fields']['style_mode']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['style_mode']['alter']['alter_text'] = TRUE;
+  $handler->display->display_options['fields']['style_mode']['alter']['text'] = '<br />Style: [style_mode]';
+  $handler->display->display_options['fields']['style_mode']['element_label_colon'] = FALSE;
   /* Field: Panels Pane Report: Entity Type */
   $handler->display->display_options['fields']['entity_type']['id'] = 'entity_type';
   $handler->display->display_options['fields']['entity_type']['table'] = 'panels_pane_report';
   $handler->display->display_options['fields']['entity_type']['field'] = 'entity_type';
   $handler->display->display_options['fields']['entity_type']['label'] = 'Entity';
   $handler->display->display_options['fields']['entity_type']['alter']['alter_text'] = TRUE;
-  $handler->display->display_options['fields']['entity_type']['alter']['text'] = '[entity_type][bundle] [build_mode]';
+  $handler->display->display_options['fields']['entity_type']['alter']['text'] = '[entity_type][bundle] [build_mode] [style_mode]';
   /* Field: Panels Pane Report: Pattern Status */
   $handler->display->display_options['fields']['pattern_status']['id'] = 'pattern_status';
   $handler->display->display_options['fields']['pattern_status']['table'] = 'panels_pane_report';
@@ -354,6 +374,21 @@ function _panels_pane_report_view_panels_pane_report() {
     8 => 0,
     13 => 0,
   );
+  /* Filter criterion: Panels Pane Report: Style Mode */
+  $handler->display->display_options['filters']['style_mode']['id'] = 'style_mode';
+  $handler->display->display_options['filters']['style_mode']['table'] = 'panels_pane_report';
+  $handler->display->display_options['filters']['style_mode']['field'] = 'style_mode';
+  $handler->display->display_options['filters']['style_mode']['group'] = 1;
+  $handler->display->display_options['filters']['style_mode']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['style_mode']['expose']['operator_id'] = 'style_mode_op';
+  $handler->display->display_options['filters']['style_mode']['expose']['label'] = 'Style Mode';
+  $handler->display->display_options['filters']['style_mode']['expose']['operator'] = 'style_mode_op';
+  $handler->display->display_options['filters']['style_mode']['expose']['identifier'] = 'style_mode';
+  $handler->display->display_options['filters']['style_mode']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    3 => 0,
+  );
   /* Filter criterion: Panels Pane Report: Pattern Status */
   $handler->display->display_options['filters']['pattern_status']['id'] = 'pattern_status';
   $handler->display->display_options['filters']['pattern_status']['table'] = 'panels_pane_report';
@@ -408,6 +443,7 @@ function _panels_pane_report_view_panels_pane_report() {
   $handler->display->display_options['filters']['display_storage_type']['id'] = 'display_storage_type';
   $handler->display->display_options['filters']['display_storage_type']['table'] = 'panels_pane_report';
   $handler->display->display_options['filters']['display_storage_type']['field'] = 'display_storage_type';
+  $handler->display->display_options['filters']['display_storage_type']['group'] = 1;
   $handler->display->display_options['filters']['display_storage_type']['exposed'] = TRUE;
   $handler->display->display_options['filters']['display_storage_type']['expose']['operator_id'] = 'display_storage_type_op';
   $handler->display->display_options['filters']['display_storage_type']['expose']['label'] = 'Container';
