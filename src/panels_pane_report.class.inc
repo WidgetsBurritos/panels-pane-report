@@ -46,6 +46,16 @@ class PanelsPaneReport {
   }
 
   /**
+   * Retrieves a list of all style modes used in the database.
+   *
+   * @return array
+   *   Contains all style modes detected during scan. Empty array if none.
+   */
+  public static function retrieveAllStyleModes() {
+    return db_query('SELECT DISTINCT style_mode FROM {panels_pane_report}', array(), array('target' => 'slave'))->fetchAllKeyed(0, 0);
+  }
+
+  /**
    * Retrieves a list of all display storage types used in the database.
    *
    * @return array
@@ -83,10 +93,11 @@ class PanelsPaneReport {
     $disabled_mini_panels = variable_get('default_panels_mini', array());
 
     // Retrieve panel info from database and assemble our pane mapping.
-    $panels = db_query('SELECT pp.configuration, pp.type, pp.subtype, pd.storage_type, pd.storage_id FROM {panels_pane} pp LEFT JOIN {panels_display} pd ON pp.did = pd.did ORDER BY pp.configuration ASC', array(), array('target' => 'slave'))->fetchAll();
+    $panels = db_query('SELECT pp.configuration, pp.style, pp.type, pp.subtype, pd.storage_type, pd.storage_id FROM {panels_pane} pp LEFT JOIN {panels_display} pd ON pp.did = pd.did ORDER BY pp.configuration ASC', array(), array('target' => 'slave'))->fetchAll();
 
     foreach ($panels as $panel) {
       $config = unserialize($panel->configuration);
+      $style = unserialize($panel->style);
 
       // Determine appropriate storage key, based on type.
       $storage_key = ($panel->type == 'node') ? $config['nid'] : $panel->subtype;
@@ -133,6 +144,7 @@ class PanelsPaneReport {
       $pane_mapping[$storage_key]['instances'][] = array(
         'panel' => $panel,
         'build_mode' => isset($config['build_mode']) ? $config['build_mode'] : '',
+        'style_mode' => isset($style['style']) ? $style['style'] : '',
         'page_status' => $page_status,
       );
     }
@@ -188,6 +200,7 @@ class PanelsPaneReport {
             'page_storage_id' => $page_storage_id,
             'page_status' => (int) $instance_info['page_status'],
             'build_mode' => $instance_info['build_mode'],
+            'style_mode' => $instance_info['style_mode'],
             'display_storage_type' => isset($instance_info['panel']->storage_type) ? $instance_info['panel']->storage_type : '',
             'display_storage_id' => isset($instance_info['panel']->storage_id) ? $instance_info['panel']->storage_id : 0,
           );

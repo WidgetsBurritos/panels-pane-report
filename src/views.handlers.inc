@@ -56,6 +56,22 @@ class panels_pane_report_build_mode extends views_handler_filter_in_operator {
 /**
  * Filters for item type fields.
  */
+class panels_pane_report_style_mode extends views_handler_filter_in_operator {
+  /**
+   * Override get_value_options().
+   */
+  function get_value_options() {
+    if (isset($this->value_options)) {
+      return;
+    }
+
+    $this->value_options = PanelsPaneReport::retrieveAllStyleModes();
+  }
+}
+
+/**
+ * Filters for item type fields.
+ */
 class panels_pane_report_display_storage_type extends views_handler_filter_in_operator {
   /**
    * Override get_value_options().
