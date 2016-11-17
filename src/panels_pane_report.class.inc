@@ -89,6 +89,8 @@ class PanelsPaneReport {
    * Generates a pane mapping array.
    */
   public static function generatePaneMapping() {
+    $pane_mapping = array();
+
     // Determine which mini panels have been disabled.
     $disabled_mini_panels = variable_get('default_panels_mini', array());
 
