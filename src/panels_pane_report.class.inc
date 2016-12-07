@@ -131,11 +131,12 @@ class PanelsPaneReport {
       }
 
       // If entity exists but is not referenced anywhere, mark it.
-      if (!isset($panel->storage_id)) {
+      $is_mini_panel = $panel->storage_type == 'panels_mini';
+      if (!isset($panel->storage_id) || $is_mini_panel && !isset($config['nid'])) {
         $panel->storage_id = self::NODE_UNREFERENCED;
         $page_status = NODE_NOT_PUBLISHED;
       }
-      elseif ($panel->storage_type == 'panels_mini') {
+      elseif ($is_mini_panel) {
         $page_status = db_query('SELECT status FROM {node} WHERE nid = :nid', array(':nid' => $config['nid']), array('target' => 'slave'))->fetchField();
       }
       else {
