@@ -107,26 +107,35 @@ class PanelsPaneReport {
       // Set entity info if not already done.
       if (!isset($pane_mapping[$storage_key]['entity_info'])) {
         switch ($panel->type) {
-          case "node";
-            $pane_mapping[$storage_key]['entity_info'] = db_query("SELECT 'node' AS type, type AS bundle, status FROM {node} WHERE nid = :nid", array(':nid' => $storage_key), array('target' => 'slave'))->fetchAssoc();
+          case 'node':
+            $pane_mapping[$storage_key]['entity_info'] = db_query("SELECT 'node' AS type, title, type AS bundle, status FROM {node} WHERE nid = :nid", array(':nid' => $storage_key), array('target' => 'slave'))->fetchAssoc();
             break;
 
-          case "panels_mini":
+          case 'panels_mini':
             $pane_mapping[$storage_key]['entity_info'] = array(
               'type' => $panel->type,
+              'title' => db_query('SELECT admin_title FROM {panels_mini} WHERE name = :name', array(':name' => $storage_key), array('target' => 'slave'))->fetchField(),
               'status' => (int) !isset($disabled_mini_panels[$storage_key]),
             );
 
             break;
 
-          case "block":
-          default:
+          case 'block':
             // Since blocks don't have to be enabled to get loaded, to avoid
             // confusion, we will set all block statuses to 1.
             $pane_mapping[$storage_key]['entity_info'] = array(
               'type' => $panel->type,
+              'title' => db_query('SELECT title FROM {block} WHERE delta = :delta', array(':delta' => $storage_key), array('target' => 'slave'))->fetchField(),
               'status' => 1,
             );
+
+          default:
+            $pane_mapping[$storage_key]['entity_info'] = array(
+              'type' => $panel->type,
+              'title' => '',
+              'status' => 1,
+            );
+
         }
       }
 
@@ -135,12 +144,17 @@ class PanelsPaneReport {
       if (!isset($panel->storage_id) || $is_mini_panel && !isset($config['nid'])) {
         $panel->storage_id = self::NODE_UNREFERENCED;
         $page_status = NODE_NOT_PUBLISHED;
+        $page_title = '';
       }
       elseif ($is_mini_panel) {
-        $page_status = db_query('SELECT status FROM {node} WHERE nid = :nid', array(':nid' => $config['nid']), array('target' => 'slave'))->fetchField();
+       $result = db_query('SELECT status, title FROM {node} WHERE nid = :nid', array(':nid' => $config['nid']), array('target' => 'slave'))->fetchAssoc();
+       $page_status = $result['status'];
+       $page_title = $result['title'];
       }
       else {
-        $page_status = db_query('SELECT status FROM {node} WHERE nid = :nid', array(':nid' => $panel->storage_id), array('target' => 'slave'))->fetchField();
+        $result = db_query('SELECT status, title FROM {node} WHERE nid = :nid', array(':nid' => $panel->storage_id), array('target' => 'slave'))->fetchAssoc();
+        $page_status = $result['status'];
+        $page_title = $result['title'];
       }
 
       // Add instance to map.
@@ -149,6 +163,7 @@ class PanelsPaneReport {
         'build_mode' => isset($config['build_mode']) ? $config['build_mode'] : '',
         'style_mode' => isset($style['style']) ? $style['style'] : '',
         'page_status' => $page_status,
+        'page_title' => $page_title,
       );
     }
 
@@ -159,22 +174,51 @@ class PanelsPaneReport {
   }
 
   /**
+   * Retrieves a title and status for the specified panel.
+   */
+  public static function retrieveTitleAndStatusByIdAndType($storage_id, $storage_type) {
+    switch ($storage_type) {
+      case 'panels_node':
+        $result = db_query("SELECT title, status FROM {node} WHERE nid = :nid", array(':nid' => $storage_id), array('target' => 'slave'))->fetchAssoc();
+        if ($result) {
+          return $result;
+        }
+        break;
+
+      case 'panels_mini':
+        // Determine which mini panels have been disabled.
+        $disabled_mini_panels = variable_get('default_panels_mini', array());
+        return array(
+          'title' => (string) db_query('SELECT admin_title FROM {panels_mini} WHERE name = :name', array(':name' => $storage_id), array('target' => 'slave'))->fetchField(),
+          'status' => (int) !isset($disabled_mini_panels[$storage_id]),
+        );
+
+    }
+
+    return array(
+      'title' => '',
+      'status' => 1,
+    );
+  }
+
+  /**
    * Retrieves page storage ids for the specified instance.
    */
   public static function retrievePageStorageIdsForInstance($instance_info, $pane_mapping) {
     $storage_id = $instance_info['panel']->storage_id;
     if (is_numeric($storage_id)) {
-      $page_storage_ids = array($storage_id);
+      $page_storage_ids = array($storage_id => $instance_info['panel']->storage_type);
     }
     elseif (!empty($pane_mapping[$storage_id]['instances'])) {
       // If pattern exists inside a minipanel mark all pages its included.
-      $page_storage_ids = array_map(function ($instance) {
-        return $instance['panel']->storage_id;
-      }, $pane_mapping[$storage_id]['instances']);
+      $page_storage_ids = array();
+      foreach ($pane_mapping[$storage_id]['instances'] as $instance) {
+        $page_storage_ids[$instance['panel']->storage_id] = $instance['panel']->storage_type;
+      }
     }
     else {
       // If pattern exists inside mini panel that is unreferenced.
-      $page_storage_ids = array(self::NODE_UNREFERENCED);
+      $page_storage_ids = array(self::NODE_UNREFERENCED => self::NODE_UNREFERENCED);
     }
     return $page_storage_ids;
   }
@@ -194,14 +238,18 @@ class PanelsPaneReport {
       foreach ($details['instances'] as $instance_info) {
         $page_storage_ids = self::retrievePageStorageIdsForInstance($instance_info, $pane_mapping);
 
-        foreach ($page_storage_ids as $page_storage_id) {
+        foreach ($page_storage_ids as $page_storage_id => $page_storage_type) {
+          $page_info = self::retrieveTitleAndStatusByIdAndType($page_storage_id, $page_storage_type);
+          
           $item_array = array(
             'entity_type' => isset($details['entity_info']['type']) ? $details['entity_info']['type'] : self::NODE_DELETED,
             'bundle' => isset($details['entity_info']['bundle']) ? $details['entity_info']['bundle'] : '',
             'pattern_storage_id' => $pattern_storage_id,
             'pattern_status' => (int) $details['entity_info']['status'],
+            'pattern_title' => isset($details['entity_info']['title']) ? $details['entity_info']['title'] : '',
             'page_storage_id' => $page_storage_id,
-            'page_status' => (int) $instance_info['page_status'],
+            'page_status' => (int) $page_info['status'],
+            'page_title' => $page_info['title'],
             'build_mode' => $instance_info['build_mode'],
             'style_mode' => $instance_info['style_mode'],
             'display_storage_type' => isset($instance_info['panel']->storage_type) ? $instance_info['panel']->storage_type : '',

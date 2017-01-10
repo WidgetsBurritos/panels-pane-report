@@ -19,6 +19,20 @@ function panels_pane_report_schema() {
         'not null' => TRUE,
         'default' => '',
       ),
+      'pattern_title' => array(
+        'description' => 'Title of the pattern.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'page_title' => array(
+        'description' => 'Title of the page the pattern is used on.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
       'pattern_storage_id' => array(
         'description' => 'Maps to the storage id for the pattern.',
         'type' => 'varchar',

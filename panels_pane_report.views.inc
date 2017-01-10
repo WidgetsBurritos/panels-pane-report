@@ -62,6 +62,24 @@ function panels_pane_report_views_data() {
   );
 
   // The pattern storage id field.
+  $data['panels_pane_report']['pattern_title'] = array(
+    'title' => t('Pattern Title'),
+    'help' => t('Title of the Pattern.'),
+    'field' => array('handler' => 'views_handler_field'),
+    'sort' => array('handler' => 'views_handler_sort'),
+    'filter' => array('handler' => 'views_handler_filter_string'),
+  );
+
+  // The page path field.
+  $data['panels_pane_report']['page_title'] = array(
+    'title' => t('Panel Page Title'),
+    'help' => t('Title of the Page.'),
+    'field' => array('handler' => 'views_handler_field'),
+    'sort' => array('handler' => 'views_handler_sort'),
+    'filter' => array('handler' => 'views_handler_filter_string'),
+  );
+
+  // The pattern storage id field.
   $data['panels_pane_report']['pattern_storage_id'] = array(
     'title' => t('Pattern Path'),
     'help' => t('Storage ID of the Pattern.'),
@@ -214,13 +232,28 @@ function _panels_pane_report_view_panels_pane_report() {
   $handler->display->display_options['fields']['pattern_status']['element_label_colon'] = FALSE;
   $handler->display->display_options['fields']['pattern_status']['type'] = 'unicode-yes-no';
   $handler->display->display_options['fields']['pattern_status']['not'] = 0;
+  /* Field: Panels Pane Report: Pattern Title */
+  $handler->display->display_options['fields']['pattern_title']['id'] = 'pattern_title';
+  $handler->display->display_options['fields']['pattern_title']['table'] = 'panels_pane_report';
+  $handler->display->display_options['fields']['pattern_title']['field'] = 'pattern_title';
+  $handler->display->display_options['fields']['pattern_title']['label'] = '';
+  $handler->display->display_options['fields']['pattern_title']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['pattern_title']['element_label_colon'] = FALSE;
   /* Field: Panels Pane Report: Pattern Path */
   $handler->display->display_options['fields']['pattern_storage_id']['id'] = 'pattern_storage_id';
   $handler->display->display_options['fields']['pattern_storage_id']['table'] = 'panels_pane_report';
   $handler->display->display_options['fields']['pattern_storage_id']['field'] = 'pattern_storage_id';
   $handler->display->display_options['fields']['pattern_storage_id']['label'] = 'Pattern';
   $handler->display->display_options['fields']['pattern_storage_id']['alter']['alter_text'] = TRUE;
-  $handler->display->display_options['fields']['pattern_storage_id']['alter']['text'] = '[pattern_status] [pattern_storage_id]';
+  $handler->display->display_options['fields']['pattern_storage_id']['alter']['text'] = '[pattern_status] [pattern_storage_id]<br>
+  [pattern_title]';
+  /* Field: Panels Pane Report: Panel Page Title */
+  $handler->display->display_options['fields']['page_title']['id'] = 'page_title';
+  $handler->display->display_options['fields']['page_title']['table'] = 'panels_pane_report';
+  $handler->display->display_options['fields']['page_title']['field'] = 'page_title';
+  $handler->display->display_options['fields']['page_title']['label'] = '';
+  $handler->display->display_options['fields']['page_title']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['page_title']['element_label_colon'] = FALSE;
   /* Field: Panels Pane Report: Page Status */
   $handler->display->display_options['fields']['page_status']['id'] = 'page_status';
   $handler->display->display_options['fields']['page_status']['table'] = 'panels_pane_report';
@@ -236,7 +269,8 @@ function _panels_pane_report_view_panels_pane_report() {
   $handler->display->display_options['fields']['page_storage_id']['field'] = 'page_storage_id';
   $handler->display->display_options['fields']['page_storage_id']['label'] = 'Page';
   $handler->display->display_options['fields']['page_storage_id']['alter']['alter_text'] = TRUE;
-  $handler->display->display_options['fields']['page_storage_id']['alter']['text'] = '[page_status] [page_storage_id]';
+  $handler->display->display_options['fields']['page_storage_id']['alter']['text'] = '[page_status] [page_storage_id]<br>
+  [page_title]';
   /* Field: Panels Pane Report: Display Storage ID */
   $handler->display->display_options['fields']['display_storage_id']['id'] = 'display_storage_id';
   $handler->display->display_options['fields']['display_storage_id']['table'] = 'panels_pane_report';
@@ -273,17 +307,18 @@ function _panels_pane_report_view_panels_pane_report() {
   $handler->display->display_options['sorts']['display_storage_id']['field'] = 'display_storage_id';
   $handler->display->display_options['sorts']['display_storage_id']['exposed'] = TRUE;
   $handler->display->display_options['sorts']['display_storage_id']['expose']['label'] = 'Container ID';
-  /* Filter criterion: Global: Combine fields filter */
+  /* Filter criterion: Entity ID */
   $handler->display->display_options['filters']['combine']['id'] = 'combine';
   $handler->display->display_options['filters']['combine']['table'] = 'views';
   $handler->display->display_options['filters']['combine']['field'] = 'combine';
-  $handler->display->display_options['filters']['combine']['operator'] = 'contains';
+  $handler->display->display_options['filters']['combine']['ui_name'] = 'Entity ID';
+  $handler->display->display_options['filters']['combine']['operator'] = 'allwords';
   $handler->display->display_options['filters']['combine']['group'] = 1;
   $handler->display->display_options['filters']['combine']['exposed'] = TRUE;
   $handler->display->display_options['filters']['combine']['expose']['operator_id'] = 'combine_op';
-  $handler->display->display_options['filters']['combine']['expose']['label'] = 'Entity ID';
+  $handler->display->display_options['filters']['combine']['expose']['label'] = 'Entity ID/Title';
   $handler->display->display_options['filters']['combine']['expose']['operator'] = 'combine_op';
-  $handler->display->display_options['filters']['combine']['expose']['identifier'] = 'combine';
+  $handler->display->display_options['filters']['combine']['expose']['identifier'] = 'entity_id';
   $handler->display->display_options['filters']['combine']['expose']['remember_roles'] = array(
     2 => '2',
     1 => 0,
@@ -293,13 +328,22 @@ function _panels_pane_report_view_panels_pane_report() {
     10 => 0,
     7 => 0,
     12 => 0,
-    5 => 0,
-    6 => 0,
-    8 => 0,
-    13 => 0,
+    14 => 0,
+    15 => 0,
+    16 => 0,
+    17 => 0,
+    18 => 0,
+    19 => 0,
   );
+  $handler->display->display_options['filters']['combine']['expose']['autocomplete_items'] = '10';
+  $handler->display->display_options['filters']['combine']['expose']['autocomplete_min_chars'] = '0';
+  $handler->display->display_options['filters']['combine']['expose']['autocomplete_raw_suggestion'] = 1;
+  $handler->display->display_options['filters']['combine']['expose']['autocomplete_raw_dropdown'] = 1;
+  $handler->display->display_options['filters']['combine']['expose']['autocomplete_dependent'] = 0;
   $handler->display->display_options['filters']['combine']['fields'] = array(
+    'pattern_title' => 'pattern_title',
     'pattern_storage_id' => 'pattern_storage_id',
+    'page_title' => 'page_title',
     'page_storage_id' => 'page_storage_id',
   );
   /* Filter criterion: Panels Pane Report: Entity Type */
@@ -474,6 +518,45 @@ function _panels_pane_report_view_panels_pane_report() {
   $handler->display->display_options['menu']['name'] = 'management';
   $handler->display->display_options['menu']['context'] = 0;
   $handler->display->display_options['menu']['context_only_inline'] = 0;
+  $translatables['panels_pane_report'] = array(
+    t('Master'),
+    t('Panels Pane Report'),
+    t('more'),
+    t('Apply'),
+    t('Reset'),
+    t('Sort by'),
+    t('Asc'),
+    t('Desc'),
+    t('Items per page'),
+    t('- All -'),
+    t('Offset'),
+    t('« first'),
+    t('‹ previous'),
+    t('next ›'),
+    t('last »'),
+    t(':[bundle]'),
+    t('<br />Build Mode: [build_mode]'),
+    t('<br />Style: [style_mode]'),
+    t('Entity'),
+    t('[entity_type][bundle] [build_mode] [style_mode]'),
+    t('Pattern'),
+    t('[pattern_status] [pattern_storage_id]<br>
+  [pattern_title]'),
+    t('Page'),
+    t('[page_status] [page_storage_id]<br>
+  [page_title]'),
+    t('Display Storage ID'),
+    t('Container'),
+    t('[display_storage_type] [[display_storage_id]]'),
+    t('Entity Type'),
+    t('Bundle'),
+    t('Build Mode'),
+    t('Container ID'),
+    t('Entity ID/Title'),
+    t('Style Mode'),
+    t('Pattern is Active?'),
+    t('Panel Page is Active?'),
+  );
 
   return $view;
 }
