@@ -99,7 +99,6 @@ class panels_pane_report_pattern_storage_id_field extends views_handler_field {
     $storage_id = $values->panels_pane_report_pattern_storage_id;
     if ((string) $storage_id !== (string) PanelsPaneReport::NODE_UNREFERENCED) {
       $options = array(
-        'query' => drupal_get_destination(),
         'attributes' => array('target' => '_blank'),
       );
 
@@ -141,7 +140,6 @@ class panels_pane_report_page_storage_id_field extends views_handler_field {
       $node_url = 'node/' . $values->panels_pane_report_page_storage_id;
 
       return l(drupal_get_path_alias($node_url), $node_url, array(
-        'query' => drupal_get_destination(),
         'attributes' => array('target' => '_blank'),
       ));
     }
