@@ -72,6 +72,7 @@ function panels_pane_report_form_views_exposed_form_alter__views_exposed_form_pa
       '#type' => 'submit',
       '#value' => t('Regenerate Report'),
       '#submit' => array_merge(array('panels_pane_report_run'), $form['#submit']),
+      '#weight' => $form['submit']['#weight'] + 1,
     );
   }
 }
