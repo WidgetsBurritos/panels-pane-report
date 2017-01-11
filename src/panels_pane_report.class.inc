@@ -143,18 +143,6 @@ class PanelsPaneReport {
       $is_mini_panel = $panel->storage_type == 'panels_mini';
       if (!isset($panel->storage_id) || $is_mini_panel && !isset($config['nid'])) {
         $panel->storage_id = self::NODE_UNREFERENCED;
-        $page_status = NODE_NOT_PUBLISHED;
-        $page_title = '';
-      }
-      elseif ($is_mini_panel) {
-       $result = db_query('SELECT status, title FROM {node} WHERE nid = :nid', array(':nid' => $config['nid']), array('target' => 'slave'))->fetchAssoc();
-       $page_status = $result['status'];
-       $page_title = $result['title'];
-      }
-      else {
-        $result = db_query('SELECT status, title FROM {node} WHERE nid = :nid', array(':nid' => $panel->storage_id), array('target' => 'slave'))->fetchAssoc();
-        $page_status = $result['status'];
-        $page_title = $result['title'];
       }
 
       // Add instance to map.
@@ -162,8 +150,6 @@ class PanelsPaneReport {
         'panel' => $panel,
         'build_mode' => isset($config['build_mode']) ? $config['build_mode'] : '',
         'style_mode' => isset($style['style']) ? $style['style'] : '',
-        'page_status' => $page_status,
-        'page_title' => $page_title,
       );
     }
 
@@ -240,7 +226,7 @@ class PanelsPaneReport {
 
         foreach ($page_storage_ids as $page_storage_id => $page_storage_type) {
           $page_info = self::retrieveTitleAndStatusByIdAndType($page_storage_id, $page_storage_type);
-          
+
           $item_array = array(
             'entity_type' => isset($details['entity_info']['type']) ? $details['entity_info']['type'] : self::NODE_DELETED,
             'bundle' => isset($details['entity_info']['bundle']) ? $details['entity_info']['bundle'] : '',
