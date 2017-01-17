@@ -27,7 +27,6 @@ class PanelsPaneReportUnitTestCase extends DrupalUnitTestCase {
    */
   public function setUp() {
     module_load_include('inc', 'panels_pane_report', 'src/panels_pane_report.class');
-    module_load_include('inc', 'panels_pane_report', 'src/views.handlers');
     parent::setUp('panels_pane_report');
   }
 
