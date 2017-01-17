@@ -26,7 +26,7 @@ class PanelsPaneReportWebTestCase extends DrupalWebTestCase {
   /**
    * Implements setUp().
    */
-  function setUp() {
+  public function setUp() {
     parent::setUp(array('panels_pane_report', 'panels_node', 'page_manager'));
   }
 

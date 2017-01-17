@@ -53,8 +53,8 @@ class PanelsPaneReportUnitTestCase extends DrupalUnitTestCase {
           array('panel' => (object) array('storage_id' => 3167, 'storage_type' => 'panels_node')),
           array('panel' => (object) array('storage_id' => 5100, 'storage_type' => 'panels_node')),
           array('panel' => (object) array('storage_id' => 9033, 'storage_type' => 'panels_node')),
-        )
-      )
+        ),
+      ),
     );
     $expected = array(
       3167 => 'panels_node',
@@ -76,14 +76,14 @@ class PanelsPaneReportUnitTestCase extends DrupalUnitTestCase {
           array('panel' => (object) array('storage_id' => 3167, 'storage_type' => 'panels_node')),
           array('panel' => (object) array('storage_id' => 5100, 'storage_type' => 'panels_node')),
           array('panel' => (object) array('storage_id' => 9033, 'storage_type' => 'panels_node')),
-        )
+        ),
       ),
       'another_mini_panel' => array(
         'instances' => array(
           array('panel' => (object) array('storage_id' => 9500, 'storage_type' => 'panels_node')),
           array('panel' => (object) array('storage_id' => 1233, 'storage_type' => 'panels_node')),
-        )
-      )
+        ),
+      ),
     );
     $expected = array(
       9500 => 'panels_node',
@@ -100,7 +100,7 @@ class PanelsPaneReportUnitTestCase extends DrupalUnitTestCase {
     $instance_info = array('panel' => (object) array('storage_id' => 'some_mini_panel', 'storage_type' => 'panels_mini'));
     $pane_mapping = array('some_mini_panel' => array());
     $expected = array(
-      PanelsPaneReport::NODE_UNREFERENCED => PanelsPaneReport::NODE_UNREFERENCED
+      PanelsPaneReport::NODE_UNREFERENCED => PanelsPaneReport::NODE_UNREFERENCED,
     );
 
     $this->assertEqual($expected, PanelsPaneReport::retrievePageStorageIdsForInstance($instance_info, $pane_mapping));
