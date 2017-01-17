@@ -97,7 +97,12 @@ function panels_pane_report_schema() {
         'default' => '',
       ),
     ),
-    'primary key' => array('entity_type', 'pattern_storage_id', 'page_storage_id', 'display_storage_id'),
+    'primary key' => array(
+      'entity_type',
+      'pattern_storage_id',
+      'page_storage_id',
+      'display_storage_id',
+    ),
   );
 
   return $schema;

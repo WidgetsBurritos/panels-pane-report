@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * Class for generating a Panel Report.

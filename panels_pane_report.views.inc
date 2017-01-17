@@ -1,11 +1,12 @@
 <?php
+
 /**
  * @file
  * Contains views-specific code for the Panels Pane Report module.
  */
 
 /**
- * Implements hook_views_pre_render(&$view).
+ * Implements hook_views_pre_render().
  */
 function panels_pane_report_views_pre_render(&$view) {
   if ($view->name === 'panels_pane_report') {
