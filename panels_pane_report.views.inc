@@ -12,7 +12,8 @@ function panels_pane_report_views_pre_render(&$view) {
   if ($view->name === 'panels_pane_report') {
     $last_run = variable_get(PanelsPaneReport::LAST_RUN_VARIABLE, -1);
     $last_run_pretty = ($last_run >= 0) ? t('!ago ago', array('!ago' => format_interval(REQUEST_TIME - $last_run))) : t('never');
-    $view->header['area']->options['content'] = t('<strong>Report last ran: </strong> !last_run', array('!last_run' => $last_run_pretty));
+    $last_run_string = t('<strong>Report last ran: </strong> !last_run', array('!last_run' => $last_run_pretty));
+    $view->header['result']->options['content'] = $last_run_string . '<br>' . $view->header['result']->options['content'];
   }
 }
 
@@ -184,12 +185,12 @@ function _panels_pane_report_view_panels_pane_report() {
   $handler->display->display_options['pager']['options']['expose']['items_per_page_options'] = '25, 50, 100, 200, 500';
   $handler->display->display_options['pager']['options']['expose']['items_per_page_options_all'] = TRUE;
   $handler->display->display_options['style_plugin'] = 'table';
-  /* Header: Global: Text area */
-  $handler->display->display_options['header']['area']['id'] = 'area';
-  $handler->display->display_options['header']['area']['table'] = 'views';
-  $handler->display->display_options['header']['area']['field'] = 'area';
-  $handler->display->display_options['header']['area']['empty'] = TRUE;
-  $handler->display->display_options['header']['area']['format'] = 'full_html';
+  /* Header: Global: Result summary */
+  $handler->display->display_options['header']['result']['id'] = 'result';
+  $handler->display->display_options['header']['result']['table'] = 'views';
+  $handler->display->display_options['header']['result']['field'] = 'result';
+  $handler->display->display_options['header']['result']['empty'] = TRUE;
+  $handler->display->display_options['header']['result']['content'] = '<strong>Displaying:</strong> @start - @end of @total';
   /* Field: Panels Pane Report: Bundle */
   $handler->display->display_options['fields']['bundle']['id'] = 'bundle';
   $handler->display->display_options['fields']['bundle']['table'] = 'panels_pane_report';
@@ -535,6 +536,7 @@ function _panels_pane_report_view_panels_pane_report() {
     t('‹ previous'),
     t('next ›'),
     t('last »'),
+    t('<strong>Displaying:</strong> @start - @end of @total'),
     t(':[bundle]'),
     t('<br />Build Mode: [build_mode]'),
     t('<br />Style: [style_mode]'),
