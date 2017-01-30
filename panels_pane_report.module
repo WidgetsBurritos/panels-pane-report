@@ -66,25 +66,22 @@ function panels_pane_report_form_views_exposed_form_alter(&$form, &$form_state, 
  * Adds a 'Regenerate Report' button to the views form.
  */
 function panels_pane_report_form_views_exposed_form_alter__views_exposed_form_panels_pane_report_page(&$form, &$form_state, $form_id) {
-  if (user_access('generate panels pane report')) {
-    $form['submit']['#value'] = t('Search');
-    $form['regenerate_report'] = array(
-      '#type' => 'submit',
-      '#value' => t('Regenerate Report'),
-      '#submit' => array_merge(array('panels_pane_report_run'), $form['#submit']),
-      '#weight' => $form['submit']['#weight'] + 1,
-    );
-  }
+  $form['submit']['#value'] = t('Search');
+  $form['regenerate_report'] = array(
+    '#access' => user_access('generate panels pane report'),
+    '#type' => 'submit',
+    '#value' => t('Regenerate Report'),
+    '#submit' => array_merge(array('panels_pane_report_run'), $form['#submit']),
+    '#weight' => $form['submit']['#weight'] + 1,
+  );
 }
 
 /**
  * Callback to run the panels pane report.
  */
 function panels_pane_report_run($form, &$form_state) {
-  if (user_access('generate panels pane report')) {
-    PanelsPaneReport::runReport();
-    cache_clear_all('panels_pane_report:', 'cache_views_data', TRUE);
-  }
+  PanelsPaneReport::runReport();
+  cache_clear_all('panels_pane_report:', 'cache_views_data', TRUE);
 }
 
 /**
