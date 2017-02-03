@@ -33,6 +33,7 @@ class PanelsPaneReportWebTestCase extends DrupalWebTestCase {
       'panels_node',
       'page_manager',
       'panels_mini',
+      'panelizer',
     ));
     db_truncate('panels_pane_report');
   }
@@ -434,6 +435,57 @@ class PanelsPaneReportWebTestCase extends DrupalWebTestCase {
     $this->assertRaw('<a href="' . url('admin/structure/mini-panels/list/' . $mp->name) . '" target="_blank">' . $mp->name . '</a>');
     $this->assertRaw('<a href="' . url('node/' . $node->nid) . '" target="_blank">node/' . $node->nid . '</a>');
     $this->assertText('panels_node [' . $node->nid . ']');
+    $this->assertText('Layout: twocol');
+  }
+
+  /**
+   * Test report supports panelizer_entity containers.
+   */
+  public function testPanelizerEntityContainers() {
+    // Attempt to login.
+    $admin_user = $this->drupalCreateUser(array(
+      'access panels pane report',
+      'generate panels pane report',
+      'administer content types',
+      'bypass node access',
+      'administer panelizer',
+    ));
+    $this->drupalLogin($admin_user);
+
+    // Create a content type and panelize it.
+    $content_type = $this->drupalCreateContentType();
+    $edit = array(
+      'panelizer[status]' => TRUE,
+      'panelizer[view modes][default][status]' => TRUE,
+    );
+    $this->drupalPost('admin/structure/types/manage/' . $content_type->name, $edit, t('Save content type'));
+
+    // Create and panelize our node.
+    $panelizer_node = $this->drupalCreateNode(array('type' => $content_type->name, 'uid' => $admin_user->uid));
+    $this->drupalPost('node/' . $panelizer_node->nid . '/panelizer/default', array(), t('Panelize it!'));
+    $storage_id = 'node:' . $panelizer_node->nid . ':default';
+
+    // Create a display for our node.
+    $display = self::createNewPanelsDisplay('panelizer_entity', $storage_id);
+
+    // Create temporary content node and add it to the panelizer container.
+    $pane_node = $this->drupalCreateNode(array('type' => 'widget', 'uid' => $admin_user->uid));
+    $config_array = array('nid' => $pane_node->nid, 'build_mode' => 'burrito');
+    $pane = self::createNewPanelsPane($config_array);
+    self::addPaneToDisplay($display, $pane);
+
+    // Attempt to regenerate the report.
+    $submit_options = array('query' => array('op' => 'Regenerate Report'));
+    $this->drupalGet('admin/reports/panels-pane-report', $submit_options);
+    $this->assertText('entity_field');
+    $this->assertText('node_links');
+    $this->assertText('node:widget');
+    $this->assertText('Build Mode: burrito');
+    $this->assertText('Build Mode: default');
+    $this->assertText('Style: wrapped');
+    $this->assertRaw('<a href="' . url('node/' . $pane_node->nid) . '" target="_blank">node/' . $pane_node->nid . '</a>');
+    $this->assertRaw('<a href="' . url('node/' . $panelizer_node->nid) . '" target="_blank">node/' . $panelizer_node->nid . '</a>');
+    $this->assertText('panelizer_entity [' . $storage_id . ']');
     $this->assertText('Layout: twocol');
   }
 

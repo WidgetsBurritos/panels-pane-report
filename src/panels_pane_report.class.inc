@@ -173,10 +173,11 @@ class PanelsPaneReport {
   /**
    * Retrieves a title and status for the specified panel.
    */
-  public static function retrieveTitleAndStatusByIdAndType($storage_id, $storage_type) {
+  public static function retrievePageInfoByIdAndType($storage_id, $storage_type) {
     switch ($storage_type) {
+      case 'node':
       case 'panels_node':
-        $result = db_query("SELECT title, status FROM {node} WHERE nid = :nid", array(':nid' => $storage_id), array('target' => 'slave'))->fetchAssoc();
+        $result = db_query("SELECT nid as storage_id, title, status FROM {node} WHERE nid = :nid", array(':nid' => $storage_id), array('target' => 'slave'))->fetchAssoc();
         if ($result) {
           return $result;
         }
@@ -186,13 +187,18 @@ class PanelsPaneReport {
         // Determine which mini panels have been disabled.
         $disabled_mini_panels = variable_get('default_panels_mini', array());
         return array(
+          'storage_id' => $storage_id,
           'title' => (string) db_query('SELECT admin_title FROM {panels_mini} WHERE name = :name', array(':name' => $storage_id), array('target' => 'slave'))->fetchField(),
           'status' => (int) !isset($disabled_mini_panels[$storage_id]),
         );
 
+      case 'panelizer_entity':
+        list ($entity_type, $entity_id, $view_mode) = explode(':', $storage_id);
+        return self::retrievePageInfoByIdAndType($entity_id, $entity_type);
     }
 
     return array(
+      'storage_id' => $storage_id,
       'title' => '',
       'status' => NULL,
     );
@@ -203,21 +209,23 @@ class PanelsPaneReport {
    */
   public static function retrievePageStorageIdsForInstance($instance_info, $pane_mapping) {
     $storage_id = $instance_info['panel']->storage_id;
-    if (is_numeric($storage_id)) {
-      $page_storage_ids = array($storage_id => $instance_info['panel']->storage_type);
+    switch($instance_info['panel']->storage_type) {
+      case 'panels_node':
+      case 'panelizer_entity':
+        return array($storage_id => $instance_info['panel']->storage_type);
+
+      case 'panels_mini':
+        // If pattern exists inside a minipanel mark all pages its included.
+        if (!empty($pane_mapping[$storage_id]['instances'])) {
+          $page_storage_ids = array();
+          foreach ($pane_mapping[$storage_id]['instances'] as $instance) {
+            $page_storage_ids[$instance['panel']->storage_id] = $instance['panel']->storage_type;
+          }
+          return $page_storage_ids;
+        }
     }
-    elseif (!empty($pane_mapping[$storage_id]['instances'])) {
-      // If pattern exists inside a minipanel mark all pages its included.
-      $page_storage_ids = array();
-      foreach ($pane_mapping[$storage_id]['instances'] as $instance) {
-        $page_storage_ids[$instance['panel']->storage_id] = $instance['panel']->storage_type;
-      }
-    }
-    else {
-      // If pattern exists inside mini panel that is unreferenced.
-      $page_storage_ids = array(self::NODE_UNREFERENCED => self::NODE_UNREFERENCED);
-    }
-    return $page_storage_ids;
+
+    return array(self::NODE_UNREFERENCED => self::NODE_UNREFERENCED);
   }
 
   /**
@@ -236,7 +244,7 @@ class PanelsPaneReport {
         $page_storage_ids = self::retrievePageStorageIdsForInstance($instance_info, $pane_mapping);
 
         foreach ($page_storage_ids as $page_storage_id => $page_storage_type) {
-          $page_info = self::retrieveTitleAndStatusByIdAndType($page_storage_id, $page_storage_type);
+          $page_info = self::retrievePageInfoByIdAndType($page_storage_id, $page_storage_type);
 
           $item_array = array(
             'entity_type' => isset($details['entity_info']['type']) ? $details['entity_info']['type'] : self::NODE_DELETED,
@@ -244,7 +252,7 @@ class PanelsPaneReport {
             'pattern_storage_id' => $pattern_storage_id,
             'pattern_status' => $details['entity_info']['status'],
             'pattern_title' => isset($details['entity_info']['title']) ? $details['entity_info']['title'] : '',
-            'page_storage_id' => $page_storage_id,
+            'page_storage_id' => $page_info['storage_id'],
             'page_status' => $page_info['status'],
             'page_title' => $page_info['title'],
             'build_mode' => $instance_info['build_mode'],

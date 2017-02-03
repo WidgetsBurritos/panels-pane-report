@@ -33,10 +33,21 @@ class PanelsPaneReportUnitTestCase extends DrupalUnitTestCase {
   /**
    * Test PanelsPaneReport::retrievePageStorageIdsForInstance() output.
    */
-  public function testStorageIdIsNumeric() {
+  public function testPanelsNodeStorageIsUnaltered() {
     $instance_info = array('panel' => (object) array('storage_id' => 3167, 'storage_type' => 'panels_node'));
     $pane_mapping = array();
     $expected = array(3167 => 'panels_node');
+
+    $this->assertEqual($expected, PanelsPaneReport::retrievePageStorageIdsForInstance($instance_info, $pane_mapping));
+  }
+
+  /**
+   * Test PanelsPaneReport::retrievePageStorageIdsForInstance() output.
+   */
+  public function testPanelizerEntityStorageIsUnaltered() {
+    $instance_info = array('panel' => (object) array('storage_id' => 'a:b:c', 'storage_type' => 'panelizer_entity'));
+    $pane_mapping = array();
+    $expected = array('a:b:c' => 'panelizer_entity');
 
     $this->assertEqual($expected, PanelsPaneReport::retrievePageStorageIdsForInstance($instance_info, $pane_mapping));
   }
