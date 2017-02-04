@@ -146,4 +146,56 @@ class PanelsPaneReportWebTestCase extends DrupalWebTestCase {
     $this->assertRaw('<option value="doghouse">doghouse</option>');
   }
 
+  /**
+   * Test report supports panels node containers.
+   */
+  public function testPanelsNodeContainers() {
+    $admin_user = $this->drupalCreateUser(array(
+      'access panels pane report',
+      'generate panels pane report',
+    ));
+
+    // Create a temporary node.
+    $node = $this->drupalCreateNode(array('type' => 'widget', 'uid' => $admin_user->uid));
+
+    // Simulate the addition of the node to a panels_node panel.
+    $did = 500;
+    $storage_id = 8;
+    $config_array = array('nid' => $node->nid, 'build_mode' => 'burrito');
+    $style_array = array('style' => 'wrapped');
+
+    db_insert('panels_pane')->fields(array(
+      'did' => $did,
+      'configuration' => serialize($config_array),
+      'style' => serialize($style_array),
+      'type' => 'node',
+      'subtype' => 'node',
+    ))->execute();
+
+    db_insert('panels_display')->fields(array(
+      'did' => $did,
+      'panel_settings' => serialize(''),
+      'storage_type' => 'panels_node',
+      'storage_id' => $storage_id,
+    ))->execute();
+
+    db_insert('panels_node')->fields(array(
+      'nid' => $node->nid,
+      'did' => $did,
+      'pipeline' => 'standard',
+    ))->execute();
+
+    // Attempt to login and regenerate the report.
+    $this->drupalLogin($admin_user);
+    $submit_options = array('query' => array('op' => 'Regenerate Report'));
+    $this->drupalGet('admin/reports/panels-pane-report', $submit_options);
+    $this->assertText('node:widget');
+    $this->assertText('Build Mode: burrito');
+    $this->assertText('Style: wrapped');
+    $this->assertText($node->title);
+    $this->assertRaw('<a href="' . url('node/' . $node->nid) . '" target="_blank">node/' . $node->nid . '</a>');
+    $this->assertRaw('<a href="' . url('node/' . $storage_id) . '" target="_blank">node/' . $storage_id . '</a>');
+    $this->assertText('panels_node [' . $storage_id . ']');
+  }
+
 }
