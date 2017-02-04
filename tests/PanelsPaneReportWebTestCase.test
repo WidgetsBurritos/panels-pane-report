@@ -17,8 +17,8 @@ class PanelsPaneReportWebTestCase extends DrupalWebTestCase {
    */
   public static function getInfo() {
     return array(
-      'name' => t('Web Test Cases'),
-      'description' => t('TODO: write me.'),
+      'name' => t('Panels Panel Report Web Tests'),
+      'description' => t('Test panels pane report functionality'),
       'group' => t('Panels Pane Report'),
     );
   }
@@ -28,6 +28,7 @@ class PanelsPaneReportWebTestCase extends DrupalWebTestCase {
    */
   public function setUp() {
     parent::setUp(array('panels_pane_report', 'panels_node', 'page_manager'));
+    db_truncate('panels_pane_report');
   }
 
   /**
@@ -103,6 +104,46 @@ class PanelsPaneReportWebTestCase extends DrupalWebTestCase {
     $this->drupalLogin($admin_user);
     $this->drupalGet('admin/reports/panels-pane-report');
     $this->assertNoField('edit-regenerate-report');
+  }
+
+  /**
+   * Test filter contains expected filter options.
+   */
+  public function testExpectedFilterOptions() {
+    $row = array(
+      'entity_type' => 'puppy',
+      'pattern_storage_id' => 'k9',
+      'page_storage_id' => 'yard1',
+      'display_storage_type' => 'doghouse',
+      'display_storage_id' => 'woofhouse9',
+      'build_mode' => 'retriever',
+      'style_mode' => 'golden',
+      'bundle' => 'litter',
+    );
+    PanelsPaneReport::reportItem($row);
+
+    $admin_user = $this->drupalCreateUser(array(
+      'access panels pane report',
+    ));
+
+    $this->drupalLogin($admin_user);
+
+    $this->drupalGet('admin/reports/panels-pane-report');
+
+    // Entity Types.
+    $this->assertRaw('<option value="puppy">puppy</option>');
+
+    // Bundles.
+    $this->assertRaw('<option value="litter">litter</option>');
+
+    // Build Modes.
+    $this->assertRaw('<option value="retriever">retriever</option>');
+
+    // Style Modes.
+    $this->assertRaw('<option value="golden">golden</option>');
+
+    // Containers.
+    $this->assertRaw('<option value="doghouse">doghouse</option>');
   }
 
 }
