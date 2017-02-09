@@ -6,6 +6,7 @@ configure = admin/config/system/panels_pane_report
 
 dependencies[] = panels
 dependencies[] = views
+test_dependencies[] = panelizer
 
 files[] = src/panels_pane_report.class.inc
 files[] = src/views.handlers.inc
