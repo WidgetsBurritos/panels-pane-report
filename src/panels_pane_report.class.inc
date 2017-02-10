@@ -127,14 +127,14 @@ class PanelsPaneReport {
             $pane_mapping[$storage_key]['entity_info'] = array(
               'type' => $panel->type,
               'title' => db_query('SELECT title FROM {block} WHERE delta = :delta', array(':delta' => $storage_key), array('target' => 'slave'))->fetchField(),
-              'status' => 1,
+              'status' => NULL,
             );
 
           default:
             $pane_mapping[$storage_key]['entity_info'] = array(
               'type' => $panel->type,
               'title' => '',
-              'status' => 1,
+              'status' => NULL,
             );
 
         }
@@ -184,7 +184,7 @@ class PanelsPaneReport {
 
     return array(
       'title' => '',
-      'status' => 1,
+      'status' => NULL,
     );
   }
 
@@ -232,10 +232,10 @@ class PanelsPaneReport {
             'entity_type' => isset($details['entity_info']['type']) ? $details['entity_info']['type'] : self::NODE_DELETED,
             'bundle' => isset($details['entity_info']['bundle']) ? $details['entity_info']['bundle'] : '',
             'pattern_storage_id' => $pattern_storage_id,
-            'pattern_status' => (int) $details['entity_info']['status'],
+            'pattern_status' => $details['entity_info']['status'],
             'pattern_title' => isset($details['entity_info']['title']) ? $details['entity_info']['title'] : '',
             'page_storage_id' => $page_storage_id,
-            'page_status' => (int) $page_info['status'],
+            'page_status' => $page_info['status'],
             'page_title' => $page_info['title'],
             'build_mode' => $instance_info['build_mode'],
             'style_mode' => $instance_info['style_mode'],

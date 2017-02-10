@@ -139,6 +139,48 @@ class panels_pane_report_pattern_storage_id_field extends views_handler_field {
 /**
  * Render options for page nid fields.
  */
+class panels_pane_report_pattern_status_field extends views_handler_field_boolean {
+
+  /**
+   * Override render().
+   *
+   * @param $values
+   *
+   * @return null|string|void
+   */
+  function render($values) {
+    if ($values->panels_pane_report_pattern_status === NULL) {
+      return '';
+    }
+    return parent::render($values);
+  }
+
+}
+
+/**
+ * Render options for page nid fields.
+ */
+class panels_pane_report_page_status_field extends views_handler_field_boolean {
+
+  /**
+   * Override render().
+   *
+   * @param $values
+   *
+   * @return null|string|void
+   */
+  function render($values) {
+    if ($values->panels_pane_report_page_status === NULL) {
+      return '';
+    }
+    return parent::render($values);
+  }
+
+}
+
+/**
+ * Render options for page nid fields.
+ */
 class panels_pane_report_page_storage_id_field extends views_handler_field {
 
   /**

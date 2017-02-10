@@ -103,7 +103,7 @@ function panels_pane_report_views_data() {
   $data['panels_pane_report']['pattern_status'] = array(
     'title' => t('Pattern Status'),
     'help' => t('Status of the Pattern.'),
-    'field' => array('handler' => 'views_handler_field_boolean'),
+    'field' => array('handler' => 'panels_pane_report_pattern_status_field'),
     'sort' => array('handler' => 'views_handler_sort'),
     'filter' => array('handler' => 'views_handler_filter_boolean_operator'),
   );
@@ -112,7 +112,7 @@ function panels_pane_report_views_data() {
   $data['panels_pane_report']['page_status'] = array(
     'title' => t('Page Status'),
     'help' => t('Status of the Page.'),
-    'field' => array('handler' => 'views_handler_field_boolean'),
+    'field' => array('handler' => 'panels_pane_report_page_status_field'),
     'sort' => array('handler' => 'views_handler_sort'),
     'filter' => array('handler' => 'views_handler_filter_boolean_operator'),
   );
@@ -247,7 +247,7 @@ function _panels_pane_report_view_panels_pane_report() {
   $handler->display->display_options['fields']['pattern_storage_id']['field'] = 'pattern_storage_id';
   $handler->display->display_options['fields']['pattern_storage_id']['label'] = 'Pattern';
   $handler->display->display_options['fields']['pattern_storage_id']['alter']['alter_text'] = TRUE;
-  $handler->display->display_options['fields']['pattern_storage_id']['alter']['text'] = '[pattern_status] [pattern_storage_id]<br>
+  $handler->display->display_options['fields']['pattern_storage_id']['alter']['text'] = '<span class="pattern-status">[pattern_status]</span> [pattern_storage_id]<br>
   [pattern_title]';
   /* Field: Panels Pane Report: Panel Page Title */
   $handler->display->display_options['fields']['page_title']['id'] = 'page_title';
@@ -271,7 +271,7 @@ function _panels_pane_report_view_panels_pane_report() {
   $handler->display->display_options['fields']['page_storage_id']['field'] = 'page_storage_id';
   $handler->display->display_options['fields']['page_storage_id']['label'] = 'Page';
   $handler->display->display_options['fields']['page_storage_id']['alter']['alter_text'] = TRUE;
-  $handler->display->display_options['fields']['page_storage_id']['alter']['text'] = '[page_status] [page_storage_id]<br>
+  $handler->display->display_options['fields']['page_storage_id']['alter']['text'] = '<span class="page-status">[page_status]</span> [page_storage_id]<br>
   [page_title]';
   /* Field: Panels Pane Report: Display Storage ID */
   $handler->display->display_options['fields']['display_storage_id']['id'] = 'display_storage_id';
@@ -543,10 +543,10 @@ function _panels_pane_report_view_panels_pane_report() {
     t('Entity'),
     t('[entity_type][bundle] [build_mode] [style_mode]'),
     t('Pattern'),
-    t('[pattern_status] [pattern_storage_id]<br>
+    t('<span class="pattern-status">[pattern_status]</span> [pattern_storage_id]<br>
   [pattern_title]'),
     t('Page'),
-    t('[page_status] [page_storage_id]<br>
+    t('<span class="page-status">[page_status]</span> [page_storage_id]<br>
   [page_title]'),
     t('Display Storage ID'),
     t('Container'),
