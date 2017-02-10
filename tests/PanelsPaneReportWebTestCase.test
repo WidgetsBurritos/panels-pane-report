@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * Panels Pane Report Web Tests.
@@ -27,7 +28,12 @@ class PanelsPaneReportWebTestCase extends DrupalWebTestCase {
    * Implements setUp().
    */
   public function setUp() {
-    parent::setUp(array('panels_pane_report', 'panels_node', 'page_manager'));
+    parent::setUp(array(
+      'panels_pane_report',
+      'panels_node',
+      'page_manager',
+      'panels_mini',
+    ));
     db_truncate('panels_pane_report');
   }
 
@@ -196,6 +202,150 @@ class PanelsPaneReportWebTestCase extends DrupalWebTestCase {
     $this->assertRaw('<a href="' . url('node/' . $node->nid) . '" target="_blank">node/' . $node->nid . '</a>');
     $this->assertRaw('<a href="' . url('node/' . $storage_id) . '" target="_blank">node/' . $storage_id . '</a>');
     $this->assertText('panels_node [' . $storage_id . ']');
+  }
+
+  /**
+   * Creates a Panels pane.
+   */
+  private function createNewPanelsPane(array $configuration = array(), $type = 'node', $subtype = 'node') {
+    $pane = panels_new_pane($type, $subtype, TRUE);
+    $pane->panel = 'left';
+    $pane->configuration = $configuration;
+    $pane->style = array('style' => 'wrapped', 'settings' => array());
+
+    return $pane;
+  }
+
+  /**
+   * Creates a Panels display object.
+   */
+  private function createNewPanelsDisplay($storage_type, $storage_id) {
+    $display = panels_new_display();
+    $display->layout = 'twocol';
+    $display->storage_type = $storage_type;
+    $display->storage_id = $storage_id;
+
+    return $display;
+  }
+
+  /**
+   * Creates a new Mini Panel object.
+   */
+  private function createNewMiniPanel($name = 'grid_1', $title = NULL) {
+    // Create a new mini panel.
+    $mini_panel = panels_mini_new();
+    $mini_panel->category = '';
+    $mini_panel->display = self::createNewPanelsDisplay('panels_mini', $name);
+    $mini_panel->name = $name;
+    $mini_panel->admin_title = isset($title) ? $title : $name;
+    $mini_panel->admin_description = '';
+
+    return $mini_panel;
+  }
+
+  /**
+   * Adds a pane to the specified display.
+   */
+  private function addPaneToDisplay(&$display, $pane) {
+    $display->panels[$pane->panel][] = $pane->pid;
+    $display->panel_settings['style_settings'][$pane->panel] = NULL;
+    $display->content[$pane->pid] = $pane;
+    panels_save_display($display);
+  }
+
+  /**
+   * Test report supports panels_mini containers.
+   */
+  public function testPanelsMiniContainers() {
+    $admin_user = $this->drupalCreateUser(array(
+      'access panels pane report',
+      'generate panels pane report',
+    ));
+
+    // Create temporary nodes.
+    $node1 = $this->drupalCreateNode(array('type' => 'widget', 'uid' => $admin_user->uid));
+    $node2 = $this->drupalCreateNode(array('type' => 'burrito', 'uid' => $admin_user->uid));
+
+    // Create a mini panel.
+    $mp_name = 'grid_1';
+    $mp = self::createNewMiniPanel($mp_name);
+
+    // Create the panes.
+    $pane1 = self::createNewPanelsPane(array(
+      'nid' => $node1->nid,
+      'build_mode' => 'extended',
+    ));
+
+    $pane2 = self::createNewPanelsPane(array(
+      'nid' => $node2->nid,
+      'build_mode' => 'limited',
+    ));
+
+    // Add the panes to the display.
+    self::addPaneToDisplay($mp->display, $pane1);
+    self::addPaneToDisplay($mp->display, $pane2);
+
+    panels_mini_save($mp);
+
+    // Attempt to login and regenerate the report.
+    $this->drupalLogin($admin_user);
+    $submit_options = array('query' => array('op' => 'Regenerate Report'));
+    $this->drupalGet('admin/reports/panels-pane-report', $submit_options);
+    $this->assertText('node:widget');
+    $this->assertText('node:burrito');
+    $this->assertText('Style: wrapped');
+    $this->assertText($node1->title);
+    $this->assertText($node2->title);
+    $this->assertRaw('<a href="' . url('node/' . $node1->nid) . '" target="_blank">node/' . $node1->nid . '</a>');
+    $this->assertRaw('<a href="' . url('node/' . $node2->nid) . '" target="_blank">node/' . $node2->nid . '</a>');
+    $this->assertText('panels_mini [' . $mp_name . ']');
+  }
+
+  /**
+   * Test report supports panels_mini entity.
+   */
+  public function testPanelsMiniEntity() {
+    // Create admin user.
+    $admin_user = $this->drupalCreateUser(array(
+      'access panels pane report',
+      'generate panels pane report',
+    ));
+
+    // Create temporary node.
+    $node = $this->drupalCreateNode(array(
+      'type' => 'panels_node',
+      'uid' => $admin_user->uid,
+      'panels_node' => array(
+        'layout' => 'twocols',
+      ),
+    ));
+
+    // Create display.
+    $display = self::createNewPanelsDisplay('panels_node', $node->nid);
+
+    // Create a mini panel.
+    $mp = self::createNewMiniPanel();
+    panels_mini_save($mp);
+
+    // Create the panes.
+    $pane = self::createNewPanelsPane(array(
+      'build_mode' => 'burrito',
+    ), 'panels_mini', $mp->name);
+
+    // Add pane to display.
+    self::addPaneToDisplay($display, $pane);
+
+    // Attempt to login and regenerate the report.
+    $this->drupalLogin($admin_user);
+    $submit_options = array('query' => array('op' => 'Regenerate Report'));
+    $this->drupalGet('admin/reports/panels-pane-report', $submit_options);
+    $this->assertText('panels_mini');
+    $this->assertText('Build Mode: burrito');
+    $this->assertText('Style: wrapped');
+    $this->assertText($node->title);
+    $this->assertRaw('<a href="' . url('admin/structure/mini-panels/list/' . $mp->name) . '" target="_blank">' . $mp->name . '</a>');
+    $this->assertRaw('<a href="' . url('node/' . $node->nid) . '" target="_blank">node/' . $node->nid . '</a>');
+    $this->assertText('panels_node [' . $node->nid . ']');
   }
 
 }
