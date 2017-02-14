@@ -209,15 +209,16 @@ class panels_pane_report_page_storage_id_field extends views_handler_field {
    * @return null|string|void
    */
   function render($values) {
-    if ($values->panels_pane_report_page_storage_id == PanelsPaneReport::NODE_UNREFERENCED) {
+    if ($values->panels_pane_report_page_storage_id === (string)PanelsPaneReport::NODE_UNREFERENCED) {
       return t('No reference');
+    }
+    $link_attributes = array('attributes' => array('target' => '_blank'));
+    if ($values->panels_pane_report_display_storage_type == 'page_manager') {
+      return l($values->panels_pane_report_page_storage_id, $values->panels_pane_report_page_storage_id, $link_attributes);
     }
     else {
       $node_url = 'node/' . $values->panels_pane_report_page_storage_id;
-
-      return l(drupal_get_path_alias($node_url), $node_url, array(
-        'attributes' => array('target' => '_blank'),
-      ));
+      return l(drupal_get_path_alias($node_url), $node_url, $link_attributes);
     }
   }
 

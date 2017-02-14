@@ -307,12 +307,14 @@ class PanelsPaneReportWebTestCase extends DrupalWebTestCase {
   /**
    * Creates a Panels display object.
    */
-  private function createNewPanelsDisplay($storage_type, $storage_id) {
+  private function createNewPanelsDisplay($storage_type, $storage_id, $did = NULL) {
     $display = panels_new_display();
     $display->layout = 'twocol';
     $display->storage_type = $storage_type;
     $display->storage_id = $storage_id;
-
+    if (!isset($did)) {
+      $display->did = $did;
+    }
     return $display;
   }
 
@@ -488,5 +490,71 @@ class PanelsPaneReportWebTestCase extends DrupalWebTestCase {
     $this->assertText('panelizer_entity [' . $storage_id . ']');
     $this->assertText('Layout: twocol');
   }
+
+
+ /**
+  * Test report supports page manager containers.
+  */
+ public function testPageManagerContainers() {
+   $admin_user = $this->drupalCreateUser(array(
+     'access panels pane report',
+     'generate panels pane report',
+   ));
+
+   // Create temporary nodes.
+   $node1 = $this->drupalCreateNode(array('type' => 'widget', 'uid' => $admin_user->uid));
+   $node2 = $this->drupalCreateNode(array('type' => 'burrito', 'uid' => $admin_user->uid));
+
+   // Create and save a page manager task handler.
+   $plugin = page_manager_get_task_handler('panel_context');
+   $handler = page_manager_new_task_handler($plugin);
+   $handler->name = 'my_page_handler';
+   $handler->task = 'page';
+   $handler->title = 'My Page Handler';
+   page_manager_save_task_handler($handler);
+
+   // Create and save a page manager page.
+   $page = page_manager_page_new();
+   $page->name = 'custom_page';
+   $page->admin_title = 'Custom Page';
+   $page->path = 'custom-page';
+   $page->default_handlers = array($handler->handler => $handler);
+   page_manager_page_save($page);
+
+   // Setup display.
+   $display = self::createNewPanelsDisplay('page_manager', $handler->name, $handler->did);
+
+   // Create the page panes.
+   $pane1 = self::createNewPanelsPane(array(
+     'nid' => $node1->nid,
+     'build_mode' => 'extended',
+   ));
+
+   $pane2 = self::createNewPanelsPane(array(
+     'nid' => $node2->nid,
+     'build_mode' => 'limited',
+   ));
+
+   // Add panes to the display.
+   self::addPaneToDisplay($display, $pane1);
+   self::addPaneToDisplay($display, $pane2);
+
+   // Attempt to login and regenerate the report.
+   $this->drupalLogin($admin_user);
+   $submit_options = array('query' => array('op' => 'Regenerate Report'));
+   $this->drupalGet('admin/reports/panels-pane-report', $submit_options);
+   $this->assertText('node:widget');
+   $this->assertText('Build Mode: limited');
+   $this->assertText('Build Mode: extended');
+   $this->assertText('Style: wrapped');
+   $this->assertText($node1->title);
+   $this->assertText($node2->title);
+   $this->assertText($page->admin_title);
+   $this->assertRaw('<a href="' . url('node/' . $node1->nid) . '" target="_blank">node/' . $node1->nid . '</a>');
+   $this->assertRaw('<a href="' . url('node/' . $node2->nid) . '" target="_blank">node/' . $node2->nid . '</a>');
+   $this->assertRaw('<a href="' . url('custom-page') . '" target="_blank">custom-page</a>');
+   $this->assertText('page_manager [' . $handler->name . ']');
+ }
+
 
 }

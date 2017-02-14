@@ -48,7 +48,16 @@ class PanelsPaneReportUnitTestCase extends DrupalUnitTestCase {
     $instance_info = array('panel' => (object) array('storage_id' => 'a:b:c', 'storage_type' => 'panelizer_entity'));
     $pane_mapping = array();
     $expected = array('a:b:c' => 'panelizer_entity');
+    $this->assertEqual($expected, PanelsPaneReport::retrievePageStorageIdsForInstance($instance_info, $pane_mapping));
+  }
 
+  /**
+   * Test PanelsPaneReport::retrievePageStorageIdsForInstance() output.
+   */
+  public function testPageManagerStorageIsUnaltered() {
+    $instance_info = array('panel' => (object) array('storage_id' => 'page_custom_page__panel', 'storage_type' => 'page_manager'));
+    $pane_mapping = array();
+    $expected = array('page_custom_page__panel' => 'page_manager');
     $this->assertEqual($expected, PanelsPaneReport::retrievePageStorageIdsForInstance($instance_info, $pane_mapping));
   }
 

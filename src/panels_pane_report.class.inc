@@ -195,6 +195,16 @@ class PanelsPaneReport {
       case 'panelizer_entity':
         list ($entity_type, $entity_id, $view_mode) = explode(':', $storage_id);
         return self::retrievePageInfoByIdAndType($entity_id, $entity_type);
+
+      case 'page_manager':
+        $result = db_query("SELECT p.path as storage_id, p.admin_title AS title FROM {page_manager_handlers} h INNER JOIN {page_manager_pages} p ON h.subtask = p.name WHERE h.name = :name", array(':name' => $storage_id), array('target' => 'slave'))->fetchAssoc();
+        if ($result) {
+          // Determine which pages have been disabled.
+          $disabled_page_manager_pages = variable_get('default_page_manager_pages', array());
+          $result['status'] = (int) !isset($disabled_page_manager_pages[$storage_id]);
+          return $result;
+        }
+
     }
 
     return array(
@@ -212,6 +222,7 @@ class PanelsPaneReport {
     switch($instance_info['panel']->storage_type) {
       case 'panels_node':
       case 'panelizer_entity':
+      case 'page_manager':
         return array($storage_id => $instance_info['panel']->storage_type);
 
       case 'panels_mini':
