@@ -67,6 +67,16 @@ class PanelsPaneReport {
   }
 
   /**
+   * Retrieves a list of all display storage layouts used in the database.
+   *
+   * @return array
+   *   Contains all layouts detected during scan. Empty array if none.
+   */
+  public static function retrieveAllDisplayLayouts() {
+    return db_query('SELECT DISTINCT display_layout FROM {panels_pane_report}', array(), array('target' => 'slave'))->fetchAllKeyed(0, 0);
+  }
+
+  /**
    * Retrieves a list of all entity types used in the database.
    *
    * @return array
@@ -96,7 +106,7 @@ class PanelsPaneReport {
     $disabled_mini_panels = variable_get('default_panels_mini', array());
 
     // Retrieve panel info from database and assemble our pane mapping.
-    $panels = db_query('SELECT pp.configuration, pp.style, pp.type, pp.subtype, pd.storage_type, pd.storage_id FROM {panels_pane} pp LEFT JOIN {panels_display} pd ON pp.did = pd.did ORDER BY pp.configuration ASC', array(), array('target' => 'slave'))->fetchAll();
+    $panels = db_query('SELECT pp.configuration, pp.style, pp.type, pp.subtype, pd.storage_type, pd.storage_id, pd.layout FROM {panels_pane} pp LEFT JOIN {panels_display} pd ON pp.did = pd.did ORDER BY pp.configuration ASC', array(), array('target' => 'slave'))->fetchAll();
 
     foreach ($panels as $panel) {
       $config = unserialize($panel->configuration);
@@ -241,6 +251,7 @@ class PanelsPaneReport {
             'style_mode' => $instance_info['style_mode'],
             'display_storage_type' => isset($instance_info['panel']->storage_type) ? $instance_info['panel']->storage_type : '',
             'display_storage_id' => isset($instance_info['panel']->storage_id) ? $instance_info['panel']->storage_id : 0,
+            'display_layout' => isset($instance_info['panel']->layout) ? $instance_info['panel']->layout : '',
           );
 
           self::reportItem($item_array);

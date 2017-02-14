@@ -96,6 +96,13 @@ function panels_pane_report_schema() {
         'not null' => TRUE,
         'default' => '',
       ),
+      'display_layout' => array(
+        'description' => 'Layout of the display container.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
     ),
     'primary key' => array(
       'entity_type',
@@ -126,5 +133,18 @@ function panels_pane_report_update_7001() {
     'not null' => FALSE,
     'unsigned' => TRUE,
     'default' => NULL,
+  ));
+}
+
+/**
+ * Adds layout to panels pane report.
+ */
+function panels_pane_report_update_7002() {
+  db_add_field('panels_pane_report', 'display_layout', array(
+    'description' => 'Layout of the display container.',
+    'type' => 'varchar',
+    'length' => 255,
+    'not null' => TRUE,
+    'default' => '',
   ));
 }

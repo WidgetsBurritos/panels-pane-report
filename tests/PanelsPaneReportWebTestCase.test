@@ -122,6 +122,7 @@ class PanelsPaneReportWebTestCase extends DrupalWebTestCase {
       'page_storage_id' => 'yard1',
       'display_storage_type' => 'doghouse',
       'display_storage_id' => 'woofhouse9',
+      'display_layout' => 'single',
       'build_mode' => 'retriever',
       'style_mode' => 'golden',
       'bundle' => 'litter',
@@ -150,6 +151,9 @@ class PanelsPaneReportWebTestCase extends DrupalWebTestCase {
 
     // Containers.
     $this->assertRaw('<option value="doghouse">doghouse</option>');
+
+    // Container Layout.
+    $this->assertRaw('<option value="single">single</option>');
   }
 
   /**
@@ -279,6 +283,7 @@ class PanelsPaneReportWebTestCase extends DrupalWebTestCase {
       'panel_settings' => serialize(''),
       'storage_type' => 'panels_node',
       'storage_id' => $storage_id,
+      'layout' => 'twocol',
     ))->execute();
 
     db_insert('panels_node')->fields(array(
@@ -298,6 +303,7 @@ class PanelsPaneReportWebTestCase extends DrupalWebTestCase {
     $this->assertRaw('<a href="' . url('node/' . $node->nid) . '" target="_blank">node/' . $node->nid . '</a>');
     $this->assertRaw('<a href="' . url('node/' . $storage_id) . '" target="_blank">node/' . $storage_id . '</a>');
     $this->assertText('panels_node [' . $storage_id . ']');
+    $this->assertText('Layout: twocol');
   }
 
   /**
@@ -395,6 +401,7 @@ class PanelsPaneReportWebTestCase extends DrupalWebTestCase {
     $this->assertRaw('<a href="' . url('node/' . $node1->nid) . '" target="_blank">node/' . $node1->nid . '</a>');
     $this->assertRaw('<a href="' . url('node/' . $node2->nid) . '" target="_blank">node/' . $node2->nid . '</a>');
     $this->assertText('panels_mini [' . $mp_name . ']');
+    $this->assertText('Layout: twocol');
   }
 
   /**
@@ -412,7 +419,7 @@ class PanelsPaneReportWebTestCase extends DrupalWebTestCase {
       'type' => 'panels_node',
       'uid' => $admin_user->uid,
       'panels_node' => array(
-        'layout' => 'twocols',
+        'layout' => 'twocol',
       ),
     ));
 
@@ -442,6 +449,7 @@ class PanelsPaneReportWebTestCase extends DrupalWebTestCase {
     $this->assertRaw('<a href="' . url('admin/structure/mini-panels/list/' . $mp->name) . '" target="_blank">' . $mp->name . '</a>');
     $this->assertRaw('<a href="' . url('node/' . $node->nid) . '" target="_blank">node/' . $node->nid . '</a>');
     $this->assertText('panels_node [' . $node->nid . ']');
+    $this->assertText('Layout: twocol');
   }
 
 }

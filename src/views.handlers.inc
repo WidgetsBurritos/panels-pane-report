@@ -97,6 +97,24 @@ class panels_pane_report_display_storage_type extends views_handler_filter_in_op
 }
 
 /**
+ * Filters for item type fields.
+ */
+class panels_pane_report_display_layout extends views_handler_filter_in_operator {
+
+  /**
+   * Override get_value_options().
+   */
+  function get_value_options() {
+    if (isset($this->value_options)) {
+      return;
+    }
+
+    $this->value_options = PanelsPaneReport::retrieveAllDisplayLayouts();
+  }
+
+}
+
+/**
  * Render options for pattern nid fields.
  */
 class panels_pane_report_pattern_storage_id_field extends views_handler_field {

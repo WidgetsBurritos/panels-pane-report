@@ -132,7 +132,16 @@ function panels_pane_report_views_data() {
     'help' => t('Indicates what storage id of the display is.'),
     'field' => array('handler' => 'views_handler_field'),
     'sort' => array('handler' => 'views_handler_sort'),
-    'filter' => array('handler' => 'panels_pane_report_display_storage_id'),
+    'filter' => array('handler' => 'views_handler_filter_string'),
+  );
+
+  // The display layout field.
+  $data['panels_pane_report']['display_layout'] = array(
+    'title' => t('Display Layout'),
+    'help' => t('Indicates what layout the display is in.'),
+    'field' => array('handler' => 'views_handler_field'),
+    'sort' => array('handler' => 'views_handler_sort'),
+    'filter' => array('handler' => 'panels_pane_report_display_layout'),
   );
 
   return $data;
@@ -273,6 +282,13 @@ function _panels_pane_report_view_panels_pane_report() {
   $handler->display->display_options['fields']['page_storage_id']['alter']['alter_text'] = TRUE;
   $handler->display->display_options['fields']['page_storage_id']['alter']['text'] = '<span class="page-status">[page_status]</span> [page_storage_id]<br>
   [page_title]';
+  /* Field: Panels Pane Report: Display Layout */
+  $handler->display->display_options['fields']['display_layout']['id'] = 'display_layout';
+  $handler->display->display_options['fields']['display_layout']['table'] = 'panels_pane_report';
+  $handler->display->display_options['fields']['display_layout']['field'] = 'display_layout';
+  $handler->display->display_options['fields']['display_layout']['label'] = '';
+  $handler->display->display_options['fields']['display_layout']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['display_layout']['element_label_colon'] = FALSE;
   /* Field: Panels Pane Report: Display Storage ID */
   $handler->display->display_options['fields']['display_storage_id']['id'] = 'display_storage_id';
   $handler->display->display_options['fields']['display_storage_id']['table'] = 'panels_pane_report';
@@ -284,7 +300,7 @@ function _panels_pane_report_view_panels_pane_report() {
   $handler->display->display_options['fields']['display_storage_type']['field'] = 'display_storage_type';
   $handler->display->display_options['fields']['display_storage_type']['label'] = 'Container';
   $handler->display->display_options['fields']['display_storage_type']['alter']['alter_text'] = TRUE;
-  $handler->display->display_options['fields']['display_storage_type']['alter']['text'] = '[display_storage_type] [[display_storage_id]]';
+  $handler->display->display_options['fields']['display_storage_type']['alter']['text'] = '[display_storage_type] [[display_storage_id]]<br>Layout: [display_layout]';
   /* Sort criterion: Panels Pane Report: Entity Type */
   $handler->display->display_options['sorts']['entity_type']['id'] = 'entity_type';
   $handler->display->display_options['sorts']['entity_type']['table'] = 'panels_pane_report';
@@ -508,6 +524,20 @@ function _panels_pane_report_view_panels_pane_report() {
     6 => 0,
     8 => 0,
     13 => 0,
+  );
+  /* Filter criterion: Panels Pane Report: Display Layout */
+  $handler->display->display_options['filters']['display_layout']['id'] = 'display_layout';
+  $handler->display->display_options['filters']['display_layout']['table'] = 'panels_pane_report';
+  $handler->display->display_options['filters']['display_layout']['field'] = 'display_layout';
+  $handler->display->display_options['filters']['display_layout']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['display_layout']['expose']['operator_id'] = 'display_layout_op';
+  $handler->display->display_options['filters']['display_layout']['expose']['label'] = 'Display Layout';
+  $handler->display->display_options['filters']['display_layout']['expose']['operator'] = 'display_layout_op';
+  $handler->display->display_options['filters']['display_layout']['expose']['identifier'] = 'display_layout';
+  $handler->display->display_options['filters']['display_layout']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    3 => 0,
   );
 
   /* Display: Page */
