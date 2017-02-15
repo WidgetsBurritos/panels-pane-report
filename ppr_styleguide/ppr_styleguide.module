@@ -4,3 +4,260 @@
  * @file
  * Main file for the Panels Pane Report styleguide module.
  */
+
+/**
+ * Implements hook_permission().
+ */
+function ppr_styleguide_permission() {
+  $permissions['administer panels pane report styleguide'] = array(
+    'title' => t('Administer Panels Pane Report Styleguide'),
+    'description' => t('Allows a user to update panels pane report styleguide'),
+  );
+
+  return $permissions;
+}
+
+/**
+ * Implements hook_views_api().
+ */
+function ppr_styleguide_views_api() {
+  return array(
+    'api' => 3,
+    'path' => drupal_get_path('module', 'ppr_styleguide'),
+  );
+}
+
+/**
+ * Implements hook_entity_info().
+ */
+function ppr_styleguide_entity_info() {
+  return array(
+    'ppr_styleguide' => array(
+      'label' => t('Panels Pane Report Styleguide Criteria'),
+      'plural label' => t('Panels Pane Report Styleguide Criteria'),
+      'entity class' => 'Entity',
+      'controller class' => 'EntityAPIControllerExportable',
+      'base table' => 'ppr_styleguide',
+      'fieldable' => FALSE,
+      'exportable' => TRUE,
+      'entity keys' => array(
+        'id' => 'sgid',
+      ),
+      'label callback' => 'ppr_styleguide_label',
+      'access callback' => 'ppr_styleguide_access',
+      'module' => 'ppr_styleguide',
+      'admin ui' => array(
+        'path' => 'admin/config/system/panels_pane_report/styleguide',
+      ),
+      'bundle keys' => array(
+        'bundle' => 'ppr_styleguide',
+      ),
+    ),
+  );
+}
+
+/**
+ * Access callback for the entity API.
+ */
+function ppr_styleguide_access($op, $entity = NULL, $account = NULL) {
+  return user_access('administer panels pane report styleguide', $account);
+}
+
+/**
+ * Implements hook_form().
+ */
+function ppr_styleguide_form($form, &$form_state, $entity, $op = 'edit', $entity_type = NULL) {
+  if ($op == 'clone') {
+    $entity->title .= ' ' . t('(cloned)');
+  }
+
+  $form['title'] = array(
+    '#title' => t('Title/Description'),
+    '#description' => t('An identifier to help you recognize this critera'),
+    '#type' => 'textfield',
+    '#default_value' => isset($entity->title) ? $entity->title : '',
+    '#required' => TRUE,
+  );
+  $form['allowed'] = array(
+    '#title' => t('Styleguide Status'),
+    '#description' => t('Indicates whether or not this criteria or allowed or disallowed by our styleguide.'),
+    '#type' => 'radios',
+    '#options' => array(
+      1 => t('Allowed'),
+      0 => t('Disallowed'),
+    ),
+    '#default_value' => isset($entity->allowed) ? $entity->allowed : 1,
+    '#required' => TRUE,
+  );
+  $form['rules'] = array(
+    '#title' => t('Rules'),
+    '#description' => t('One rule per line. Format: field=value OR field<>value'),
+    '#type' => 'textarea',
+    '#default_value' => isset($entity->rules) ? $entity->rules : '',
+    '#required' => TRUE,
+    '#suffix' => ppr_styleguide_fields_list(),
+  );
+  $form['actions'] = array('#type' => 'actions');
+  $form['actions']['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save styleguide criteria'),
+    '#weight' => 40,
+  );
+  return $form;
+}
+
+/**
+ * Form API submit callback for the type form.
+ */
+function ppr_styleguide_form_submit(&$form, &$form_state) {
+  $entity = entity_ui_form_submit_build_entity($form, $form_state);
+  $entity->save();
+  $form_state['redirect'] = 'admin/config/system/panels_pane_report/styleguide';
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function ppr_styleguide_form_panels_pane_report_admin_alter(&$form, &$form_state, $form_id) {
+  $options = array('attributes' => array('class' => 'button'));
+  if (!isset($form['#suffix'])) {
+    $form['#suffix'] = '';
+  }
+  $form['#suffix'] .= l(t('Styleguide settings'), 'admin/config/system/panels_pane_report/styleguide', $options);
+}
+
+/**
+ * Label for the styleguide.
+ */
+function ppr_styleguide_label($entity, $entity_type) {
+  $ret = '';
+  if (!isset($entity->is_new)) {
+    $ret = $entity->allowed ? t('✔') : t('✖');
+    $ret .= ' ' . $entity->title;
+  }
+  return $ret;
+}
+
+/**
+ * Returns list of all available styleguide fields.
+ */
+function ppr_styleguide_fields_list() {
+  $schema = drupal_get_schema_unprocessed('panels_pane_report', 'panels_pane_report');
+  $field_list = !empty($schema['fields']) ? $schema['fields'] : array();
+  ksort($field_list);
+  $ret = t('Fields Available:');
+  $ret .= '<ul>';
+  foreach ($field_list as $field_name => $spec) {
+    $description = isset($spec['description']) ? ": {$spec['description']}" : '';
+    $ret .= "<li><strong>{$field_name}</strong>{$description}";
+  }
+  $ret .= '</ul>';
+  return $ret;
+}
+
+/**
+ * Implements hook_panels_pane_report_report_item_alter().
+ */
+function ppr_styleguide_panels_pane_report_report_item_alter(&$item_array, $original) {
+  $results = ppr_styleguide_validate_row($item_array);
+  $item_array['styleguide_status'] = $results['status'];
+  $item_array['styleguide_details'] = serialize($results['details']);
+}
+
+/**
+ * Validates an item row against the specified or default styleguide.
+ */
+function ppr_styleguide_validate_row($row, $styleguide = NULL) {
+  if (!isset($styleguide)) {
+    $styleguide = ppr_styleguide_retrieve_styleguide();
+  }
+
+  // Evaluate disallowed rules.
+  $results = array('status' => NULL, 'details' => array());
+  foreach ($styleguide['disallowed'] as $sgid => $disallowed_rules) {
+    if (ppr_styleguide_validate_row_rules($row, $disallowed_rules)) {
+      $results['status'] = 0;
+      $results['details'][$sgid] = FALSE;
+    }
+  }
+
+  // Evaluate allowed rules.
+  foreach ($styleguide['allowed'] as $sgid => $allowed_rules) {
+    if (ppr_styleguide_validate_row_rules($row, $allowed_rules)) {
+      $results['status'] = isset($results['status']) ? $results['status'] : 1;
+      $results['details'][$sgid] = TRUE;
+    }
+  }
+
+  return $results;
+}
+
+/**
+ * Validates an item row against a specific set of rules.
+ */
+function ppr_styleguide_validate_row_rules($row, $rules) {
+  if (!empty($rules)) {
+    foreach ($rules as list($key, $op, $value)) {
+      if (!isset($key) || !isset($op)) {
+        continue;
+      }
+      elseif (!isset($value)) {
+        $value = '';
+      }
+      switch ($op) {
+        case '<>':
+          if (!isset($row[$key]) || $row[$key] == $value) {
+            return FALSE;
+          }
+          break;
+
+        case '=':
+        default:
+          if (!isset($row[$key]) || $row[$key] != $value) {
+            return FALSE;
+          }
+      }
+    }
+  }
+
+  return TRUE;
+}
+
+/**
+ * Tokenizes a set of rule.
+ */
+function ppr_styleguide_tokenize_rules($rules) {
+  $tokenized_rules = array();
+  foreach ($rules as $rule) {
+    if (preg_match('/^([^\=\<\>]+)([\=\<\>]+)([^\=\<\>]*)$/', trim($rule), $matches)) {
+      array_shift($matches);
+      $tokenized_rules[] = $matches;
+    }
+  }
+  return $tokenized_rules;
+}
+
+/**
+ * Retrieves a styleguide based on current ppr_styleguide entities.
+ */
+function ppr_styleguide_retrieve_styleguide() {
+  $styleguide = &drupal_static(__FUNCTION__);
+  if (!isset($styleguide)) {
+    $styleguide = array(
+      'allowed' => array(),
+      'disallowed' => array(),
+    );
+    $styleguide_items = entity_load('ppr_styleguide');
+    if (!empty($styleguide_items)) {
+      foreach ($styleguide_items as $styleguide_item) {
+        $sg_key = $styleguide_item->allowed ? 'allowed' : 'disallowed';
+        $rules = explode(PHP_EOL, $styleguide_item->rules);
+        foreach (ppr_styleguide_tokenize_rules($rules) as $tokenized_rules) {
+          $styleguide[$sg_key][$styleguide_item->sgid][] = $tokenized_rules;
+        }
+      }
+    }
+  }
+
+  return $styleguide;
+}
