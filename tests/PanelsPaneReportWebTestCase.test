@@ -312,7 +312,7 @@ class PanelsPaneReportWebTestCase extends DrupalWebTestCase {
     $display->layout = 'twocol';
     $display->storage_type = $storage_type;
     $display->storage_id = $storage_id;
-    if (!isset($did)) {
+    if (isset($did)) {
       $display->did = $did;
     }
     return $display;
@@ -468,7 +468,7 @@ class PanelsPaneReportWebTestCase extends DrupalWebTestCase {
     $storage_id = 'node:' . $panelizer_node->nid . ':default';
 
     // Create a display for our node.
-    $display = self::createNewPanelsDisplay('panelizer_entity', $storage_id);
+    $display = self::createNewPanelsDisplay('panelizer_entity', $storage_id, 1);
 
     // Create temporary content node and add it to the panelizer container.
     $pane_node = $this->drupalCreateNode(array('type' => 'widget', 'uid' => $admin_user->uid));
@@ -555,6 +555,5 @@ class PanelsPaneReportWebTestCase extends DrupalWebTestCase {
    $this->assertRaw('<a href="' . url('custom-page') . '" target="_blank">custom-page</a>');
    $this->assertText('page_manager [' . $handler->name . ']');
  }
-
 
 }
