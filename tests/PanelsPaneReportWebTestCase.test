@@ -10,7 +10,7 @@
  *
  * @ingroup Panels Pane Report
  */
-class PanelsPaneReportWebTestCase extends DrupalWebTestCase {
+class PanelsPaneReportWebTestCase extends PanelsPaneReportWebTestBaseCase {
   protected $profile = 'testing';
 
   /**
@@ -35,7 +35,6 @@ class PanelsPaneReportWebTestCase extends DrupalWebTestCase {
       'panels_mini',
       'panelizer',
     ));
-    db_truncate('panels_pane_report');
   }
 
   /**
@@ -290,57 +289,6 @@ class PanelsPaneReportWebTestCase extends DrupalWebTestCase {
     $this->assertRaw('<a href="' . url('node/' . $panels_node->nid) . '" target="_blank">node/' . $panels_node->nid . '</a>');
     $this->assertText('panels_node [' . $panels_node->nid . ']');
     $this->assertText('Layout: twocol');
-  }
-
-  /**
-   * Creates a Panels pane.
-   */
-  private function createNewPanelsPane(array $configuration = array(), $type = 'node', $subtype = 'node') {
-    $pane = panels_new_pane($type, $subtype, TRUE);
-    $pane->panel = 'left';
-    $pane->configuration = $configuration;
-    $pane->style = array('style' => 'wrapped', 'settings' => array());
-
-    return $pane;
-  }
-
-  /**
-   * Creates a Panels display object.
-   */
-  private function createNewPanelsDisplay($storage_type, $storage_id, $did = NULL) {
-    $display = panels_new_display();
-    $display->layout = 'twocol';
-    $display->storage_type = $storage_type;
-    $display->storage_id = $storage_id;
-    if (!isset($did)) {
-      $display->did = $did;
-    }
-    return $display;
-  }
-
-  /**
-   * Creates a new Mini Panel object.
-   */
-  private function createNewMiniPanel($name = 'grid_1', $title = NULL) {
-    // Create a new mini panel.
-    $mini_panel = panels_mini_new();
-    $mini_panel->category = '';
-    $mini_panel->display = self::createNewPanelsDisplay('panels_mini', $name);
-    $mini_panel->name = $name;
-    $mini_panel->admin_title = isset($title) ? $title : $name;
-    $mini_panel->admin_description = '';
-
-    return $mini_panel;
-  }
-
-  /**
-   * Adds a pane to the specified display.
-   */
-  private function addPaneToDisplay(&$display, $pane) {
-    $display->panels[$pane->panel][] = $pane->pid;
-    $display->panel_settings['style_settings'][$pane->panel] = NULL;
-    $display->content[$pane->pid] = $pane;
-    panels_save_display($display);
   }
 
   /**

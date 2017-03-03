@@ -1,0 +1,75 @@
+<?php
+
+/**
+ * @file
+ * Panels Pane Report Web Tests.
+ */
+
+/**
+ * Web tests for the Panels Pane Report.
+ *
+ * @ingroup Panels Pane Report
+ */
+class PanelsPaneReportWebTestBaseCase extends DrupalWebTestCase {
+  protected $profile = 'testing';
+
+  /**
+   * Implements setUp().
+   */
+  public function setUp($modules = array()) {
+    parent::setUp($modules);
+    db_truncate('panels_pane_report');
+  }
+
+  /**
+   * Creates a Panels pane.
+   */
+  protected function createNewPanelsPane(array $configuration = array(), $type = 'node', $subtype = 'node') {
+    $pane = panels_new_pane($type, $subtype, TRUE);
+    $pane->panel = 'left';
+    $pane->configuration = $configuration;
+    $pane->style = array('style' => 'wrapped', 'settings' => array());
+
+    return $pane;
+  }
+
+  /**
+   * Creates a Panels display object.
+   */
+  protected function createNewPanelsDisplay($storage_type, $storage_id, $did = NULL) {
+    $display = panels_new_display();
+    $display->layout = 'twocol';
+    $display->storage_type = $storage_type;
+    $display->storage_id = $storage_id;
+    if (!isset($did)) {
+      $display->did = $did;
+    }
+    return $display;
+  }
+
+  /**
+   * Creates a new Mini Panel object.
+   */
+  protected function createNewMiniPanel($name = 'grid_1', $title = NULL) {
+    // Create a new mini panel.
+    $mini_panel = panels_mini_new();
+    $mini_panel->category = '';
+    $mini_panel->display = self::createNewPanelsDisplay('panels_mini', $name);
+    $mini_panel->name = $name;
+    $mini_panel->admin_title = isset($title) ? $title : $name;
+    $mini_panel->admin_description = '';
+
+    return $mini_panel;
+  }
+
+  /**
+   * Adds a pane to the specified display.
+   */
+  protected function addPaneToDisplay(&$display, $pane) {
+    $display->panels[$pane->panel][] = $pane->pid;
+    $display->panel_settings['style_settings'][$pane->panel] = NULL;
+    $display->content[$pane->pid] = $pane;
+    panels_save_display($display);
+  }
+
+}
