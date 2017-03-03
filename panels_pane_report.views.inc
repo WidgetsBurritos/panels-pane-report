@@ -154,7 +154,6 @@ function panels_pane_report_views_default_views() {
   $views = array(
     'panels_pane_report' => _panels_pane_report_view_panels_pane_report(),
   );
-
   return $views;
 }
 

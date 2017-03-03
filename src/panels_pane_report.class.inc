@@ -273,6 +273,7 @@ class PanelsPaneReport {
             'display_layout' => isset($instance_info['panel']->layout) ? $instance_info['panel']->layout : '',
           );
 
+          drupal_alter('panels_pane_report_report_item', $item_array);
           self::reportItem($item_array);
         }
       }
