@@ -219,7 +219,7 @@ class PanelsPaneReport {
    */
   public static function retrievePageStorageIdsForInstance($instance_info, $pane_mapping) {
     $storage_id = $instance_info['panel']->storage_id;
-    switch($instance_info['panel']->storage_type) {
+    switch ($instance_info['panel']->storage_type) {
       case 'panels_node':
       case 'panelizer_entity':
       case 'page_manager':

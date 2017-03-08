@@ -5,7 +5,8 @@ v1.1
 #2849616: Add Better Support for page_manager container
 #2849932: Add test coverage for mini panels
 #2849680: Hide checkmark on 'No Reference'
-#2844091: Filters don't prepopulate until next page load, after clicking "regenerate" button
+#2844091: Filters don't prepopulate until next page load, after clicking
+          "regenerate" button
 #2847926: Cleanup Permissions on Form Alter and Submit Handler
 #2826465: Remove panels_node requirements
 #2844663: Display result count in header

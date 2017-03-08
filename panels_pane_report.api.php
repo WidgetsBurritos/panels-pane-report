@@ -11,6 +11,6 @@
  * @param array $item_array
  *   Item array element.
  */
-function hook_panels_pane_report_report_item_alter(&$item_array) {
+function hook_panels_pane_report_report_item_alter(array &$item_array) {
   $item_array['some_field'] = 'some_value';
 }

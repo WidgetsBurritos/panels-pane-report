@@ -2,10 +2,7 @@
 
 /**
  * @file
- * Custom views handlers/fields for Rackspace Reports.
- *
- * NOTE: File intentionally excluded from phpcs lint check, since we're overriding
- * classes and methods that don't follow camel case requirements.
+ * Custom views handlers/fields for Panels Pane Reports.
  */
 
 /**
@@ -121,10 +118,6 @@ class panels_pane_report_pattern_storage_id_field extends views_handler_field {
 
   /**
    * Override render().
-   *
-   * @param $values
-   *
-   * @return null|string|void
    */
   function render($values) {
     $storage_id = $values->panels_pane_report_pattern_storage_id;
@@ -161,10 +154,6 @@ class panels_pane_report_pattern_status_field extends views_handler_field_boolea
 
   /**
    * Override render().
-   *
-   * @param $values
-   *
-   * @return null|string|void
    */
   function render($values) {
     if ($values->panels_pane_report_pattern_status === NULL) {
@@ -182,10 +171,6 @@ class panels_pane_report_page_status_field extends views_handler_field_boolean {
 
   /**
    * Override render().
-   *
-   * @param $values
-   *
-   * @return null|string|void
    */
   function render($values) {
     if ($values->panels_pane_report_page_status === NULL) {
@@ -203,13 +188,9 @@ class panels_pane_report_page_storage_id_field extends views_handler_field {
 
   /**
    * Override render().
-   *
-   * @param $values
-   *
-   * @return null|string|void
    */
   function render($values) {
-    if ($values->panels_pane_report_page_storage_id === (string)PanelsPaneReport::NODE_UNREFERENCED) {
+    if ($values->panels_pane_report_page_storage_id === (string) PanelsPaneReport::NODE_UNREFERENCED) {
       return t('No reference');
     }
     $link_attributes = array('attributes' => array('target' => '_blank'));
