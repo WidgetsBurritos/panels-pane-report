@@ -105,7 +105,7 @@ function panels_pane_report_views_data() {
     'help' => t('Status of the Pattern.'),
     'field' => array('handler' => 'panels_pane_report_pattern_status_field'),
     'sort' => array('handler' => 'views_handler_sort'),
-    'filter' => array('handler' => 'views_handler_filter_boolean_operator'),
+    'filter' => array('handler' => 'panels_pane_report_views_handler_filter_true_false_null_operator'),
   );
 
   // The patter node status field.
@@ -114,7 +114,7 @@ function panels_pane_report_views_data() {
     'help' => t('Status of the Page.'),
     'field' => array('handler' => 'panels_pane_report_page_status_field'),
     'sort' => array('handler' => 'views_handler_sort'),
-    'filter' => array('handler' => 'views_handler_filter_boolean_operator'),
+    'filter' => array('handler' => 'panels_pane_report_views_handler_filter_true_false_null_operator'),
   );
 
   // The display storage type field.

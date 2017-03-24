@@ -13,3 +13,4 @@ files[] = src/views.handlers.inc
 files[] = tests/PanelsPaneReportUnitTestCase.test
 files[] = tests/PanelsPaneReportWebTestBaseCase.test
 files[] = tests/PanelsPaneReportWebTestCase.test
+files[] = tests/PanelsPaneReportFiltersWebTestCase.test

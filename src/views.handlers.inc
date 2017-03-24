@@ -204,3 +204,38 @@ class panels_pane_report_page_storage_id_field extends views_handler_field {
   }
 
 }
+
+/**
+ * Filter for true/false/null fields.
+ */
+class panels_pane_report_views_handler_filter_true_false_null_operator extends views_handler_filter_boolean_operator {
+
+  /**
+   * Override get_value_options().
+   */
+  function get_value_options() {
+    $this->value_options = array(
+      '1' => t('✔ True'),
+      '0' => t('✖ False'),
+      '-1' => t('∅ Null'),
+    );
+  }
+
+  /**
+   * Override query().
+   */
+  function query() {
+    $this->ensure_my_table();
+    $field = "$this->table_alias.$this->real_field";
+    if ($this->value === '1') {
+      $this->query->add_where($this->options['group'], $field, 1, '=');
+    }
+    elseif ($this->value === '0') {
+      $this->query->add_where($this->options['group'], $field, 0, '=');
+    }
+    elseif ($this->value === '-1') {
+      $this->query->add_where($this->options['group'], $field, NULL, 'IS NULL');
+    }
+  }
+
+}
