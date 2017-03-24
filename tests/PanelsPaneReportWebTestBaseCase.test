@@ -16,7 +16,7 @@ class PanelsPaneReportWebTestBaseCase extends DrupalWebTestCase {
   /**
    * Implements setUp().
    */
-  public function setUp($modules = array()) {
+  public function setUp(array $modules = array()) {
     parent::setUp($modules);
     db_truncate('panels_pane_report');
   }

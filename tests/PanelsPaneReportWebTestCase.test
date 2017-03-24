@@ -27,14 +27,15 @@ class PanelsPaneReportWebTestCase extends PanelsPaneReportWebTestBaseCase {
   /**
    * Implements setUp().
    */
-  public function setUp() {
-    parent::setUp(array(
+  public function setUp(array $modules = array()) {
+    $modules = array_merge($modules, array(
       'panels_pane_report',
       'panels_node',
       'page_manager',
       'panels_mini',
       'panelizer',
     ));
+    parent::setUp($modules);
   }
 
   /**
