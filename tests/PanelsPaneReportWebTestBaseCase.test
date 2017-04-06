@@ -72,4 +72,38 @@ class PanelsPaneReportWebTestBaseCase extends DrupalWebTestCase {
     panels_save_display($display);
   }
 
+  /**
+   * Reports one item of specified status type.
+   */
+  protected function reportOneOfSpecifiedStatus($id, $status) {
+    $row = array(
+      'entity_type' => 'puppy',
+      'pattern_storage_id' => $id,
+      'pattern_status' => $status,
+      'page_storage_id' => 'yard1',
+      'page_status' => $status,
+      'display_storage_type' => 'doghouse',
+      'display_storage_id' => 'woofhouse9',
+      'build_mode' => 'retriever',
+      'style_mode' => 'golden',
+      'bundle' => 'litter',
+    );
+    PanelsPaneReport::reportItem($row);
+  }
+
+  /**
+   * Reports one item of each status type.
+   */
+  protected function reportOneItemOfEachStatusType() {
+    $options = array(
+      'k9' => NULL,
+      'k10' => 1,
+      'k11' => 0,
+    );
+
+    foreach ($options as $id => $status) {
+      self::reportOneOfSpecifiedStatus($id, $status);
+    }
+  }
+
 }

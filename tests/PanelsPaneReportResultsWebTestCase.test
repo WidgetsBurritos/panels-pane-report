@@ -1,0 +1,194 @@
+<?php
+
+/**
+ * @file
+ * Panels Pane Report Results Web Tests.
+ */
+
+/**
+ * Web tests for the Panels Pane Report results.
+ *
+ * @ingroup Panels Pane Report
+ */
+class PanelsPaneReportResultsWebTestCase extends PanelsPaneReportWebTestBaseCase {
+  protected $profile = 'testing';
+
+  /**
+   * Implements getInfo().
+   */
+  public static function getInfo() {
+    return array(
+      'name' => t('Panels Panel Report Web Tests: Results'),
+      'description' => t('Test panels pane report result functionality'),
+      'group' => t('Panels Pane Report'),
+    );
+  }
+
+  /**
+   * Implements setUp().
+   */
+  public function setUp(array $modules = array()) {
+    $modules = array_merge($modules, array('panels_pane_report'));
+    parent::setUp($modules);
+  }
+
+  /**
+   * Tests null page and pattern statuses.
+   */
+  public function testNullPageAndPatternStatus() {
+    self::reportOneOfSpecifiedStatus('k9', NULL);
+
+    $admin_user = $this->drupalCreateUser(array(
+      'access panels pane report',
+    ));
+
+    $this->drupalLogin($admin_user);
+    $this->drupalGet('admin/reports/panels-pane-report');
+    $this->assertRaw('<span class="page-status"></span>');
+    $this->assertRaw('<span class="pattern-status"></span>');
+    $this->assertNoRaw('<span class="page-status">✔</span>');
+    $this->assertNoRaw('<span class="pattern-status">✔</span>');
+    $this->assertNoRaw('<span class="page-status">✖</span>');
+    $this->assertNoRaw('<span class="pattern-status">✖</span>');
+  }
+
+  /**
+   * Tests true page and pattern statuses.
+   */
+  public function testTruePageAndPatternStatus() {
+    self::reportOneOfSpecifiedStatus('k9', 1);
+
+    $admin_user = $this->drupalCreateUser(array(
+      'access panels pane report',
+    ));
+
+    $this->drupalLogin($admin_user);
+    $this->drupalGet('admin/reports/panels-pane-report');
+    $this->assertRaw('<span class="page-status">✔</span>');
+    $this->assertRaw('<span class="pattern-status">✔</span>');
+    $this->assertNoRaw('<span class="page-status"></span>');
+    $this->assertNoRaw('<span class="pattern-status"></span>');
+    $this->assertNoRaw('<span class="page-status">✖</span>');
+    $this->assertNoRaw('<span class="pattern-status">✖</span>');
+  }
+
+  /**
+   * Tests false page and pattern statuses.
+   */
+  public function testFalsyPageAndPatternStatus() {
+    self::reportOneOfSpecifiedStatus('k9', 0);
+
+    $admin_user = $this->drupalCreateUser(array(
+      'access panels pane report',
+    ));
+
+    $this->drupalLogin($admin_user);
+    $this->drupalGet('admin/reports/panels-pane-report');
+    $this->assertRaw('<span class="page-status">✖</span>');
+    $this->assertRaw('<span class="pattern-status">✖</span>');
+    $this->assertNoRaw('<span class="page-status"></span>');
+    $this->assertNoRaw('<span class="pattern-status"></span>');
+    $this->assertNoRaw('<span class="page-status">✔</span>');
+    $this->assertNoRaw('<span class="pattern-status">✔</span>');
+  }
+
+  /**
+   * Tests true filter option.
+   */
+  public function testOnlyTruePageAndPatternStatusVisible() {
+    self::reportOneItemOfEachStatusType();
+
+    $admin_user = $this->drupalCreateUser(array(
+      'access panels pane report',
+    ));
+
+    $this->drupalLogin($admin_user);
+    $this->drupalGet('admin/reports/panels-pane-report', array(
+      'query' => array(
+        'pattern_status' => '1',
+        'page_status' => '1',
+      ),
+    ));
+
+    $this->assertRaw('<span class="page-status">✔</span>');
+    $this->assertRaw('<span class="pattern-status">✔</span>');
+    $this->assertNoRaw('<span class="page-status"></span>');
+    $this->assertNoRaw('<span class="pattern-status"></span>');
+    $this->assertNoRaw('<span class="page-status">✖</span>');
+    $this->assertNoRaw('<span class="pattern-status">✖</span>');
+  }
+
+  /**
+   * Tests false filter option.
+   */
+  public function testOnlyFalsePageAndPatternStatusVisible() {
+    self::reportOneItemOfEachStatusType();
+
+    $admin_user = $this->drupalCreateUser(array(
+      'access panels pane report',
+    ));
+
+    $this->drupalLogin($admin_user);
+    $this->drupalGet('admin/reports/panels-pane-report', array(
+      'query' => array(
+        'pattern_status' => '0',
+        'page_status' => '0',
+      ),
+    ));
+
+    $this->assertRaw('<span class="page-status">✖</span>');
+    $this->assertRaw('<span class="pattern-status">✖</span>');
+    $this->assertNoRaw('<span class="page-status"></span>');
+    $this->assertNoRaw('<span class="pattern-status"></span>');
+    $this->assertNoRaw('<span class="page-status">✔</span>');
+    $this->assertNoRaw('<span class="pattern-status">✔</span>');
+  }
+
+  /**
+   * Tests null filter option.
+   */
+  public function testOnlyNullPageAndPatternStatusVisible() {
+    self::reportOneItemOfEachStatusType();
+
+    $admin_user = $this->drupalCreateUser(array(
+      'access panels pane report',
+    ));
+
+    $this->drupalLogin($admin_user);
+    $this->drupalGet('admin/reports/panels-pane-report', array(
+      'query' => array(
+        'pattern_status' => '-1',
+        'page_status' => '-1',
+      ),
+    ));
+
+    $this->assertRaw('<span class="page-status"></span>');
+    $this->assertRaw('<span class="pattern-status"></span>');
+    $this->assertNoRaw('<span class="page-status">✔</span>');
+    $this->assertNoRaw('<span class="pattern-status">✔</span>');
+    $this->assertNoRaw('<span class="page-status">✖</span>');
+    $this->assertNoRaw('<span class="pattern-status">✖</span>');
+  }
+
+  /**
+   * Tests null filter option.
+   */
+  public function testOnlyAllPageAndPatternStatusVisible() {
+    self::reportOneItemOfEachStatusType();
+
+    $admin_user = $this->drupalCreateUser(array(
+      'access panels pane report',
+    ));
+
+    $this->drupalLogin($admin_user);
+    $this->drupalGet('admin/reports/panels-pane-report');
+
+    $this->assertRaw('<span class="page-status"></span>');
+    $this->assertRaw('<span class="pattern-status"></span>');
+    $this->assertRaw('<span class="page-status">✔</span>');
+    $this->assertRaw('<span class="pattern-status">✔</span>');
+    $this->assertRaw('<span class="page-status">✖</span>');
+    $this->assertRaw('<span class="pattern-status">✖</span>');
+  }
+
+}
