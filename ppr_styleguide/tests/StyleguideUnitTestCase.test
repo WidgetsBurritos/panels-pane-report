@@ -1,0 +1,362 @@
+<?php
+
+/**
+ * @file
+ * Panels Pane Report Styleguide Unit Tests.
+ */
+
+/**
+ * Unit tests for the Panels Pane Report Styleguide.
+ *
+ * @ingroup Panels Pane Report
+ */
+class StyleguideUnitTestCase extends DrupalUnitTestCase {
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Panels Panel Report Styleguide Unit Tests',
+      'description' => 'Test panels pane report styleguide functionality',
+      'group' => 'Panels Pane Report',
+    );
+  }
+
+  /**
+   * Include the necessary files for unit testing.
+   */
+  public function setUp() {
+    module_load_include('module', 'ppr_styleguide', 'ppr_styleguide');
+    parent::setUp('ppr_styleguide');
+  }
+
+  /**
+   * Test ppr_styleguide_validate_row_rules() output.
+   */
+  public function testRulesMatchRow() {
+    $row = array(
+      'entity_type' => 'node',
+      'pattern_storage_id' => 'k9',
+      'page_storage_id' => 'yard1',
+      'display_storage_type' => 'doghouse',
+      'display_storage_id' => 'woofhouse9',
+      'display_layout' => 'single',
+      'build_mode' => 'default',
+      'style_mode' => 'rounded_corners',
+      'bundle' => 'page',
+    );
+    $rules = array(
+      array('bundle', '=', 'page'),
+      array('style_mode', '=', 'rounded_corners'),
+    );
+    $this->assertTrue(ppr_styleguide_validate_row_rules($row, $rules));
+  }
+
+  /**
+   * Test ppr_styleguide_validate_row_rules() output.
+   */
+  public function testRulesDoNotMatchRow() {
+    $row = array(
+      'entity_type' => 'node',
+      'pattern_storage_id' => 'k9',
+      'page_storage_id' => 'yard1',
+      'display_storage_type' => 'doghouse',
+      'display_storage_id' => 'woofhouse9',
+      'display_layout' => 'single',
+      'build_mode' => 'default',
+      'style_mode' => 'rounded_corners',
+      'bundle' => 'page',
+    );
+    $rules = array(
+      array('bundle', '=', 'article'),
+      array('style_mode', '=', 'rounded_corners'),
+    );
+    $this->assertFalse(ppr_styleguide_validate_row_rules($row, $rules));
+  }
+
+  /**
+   * Test ppr_styleguide_validate_row_rules() output.
+   */
+  public function testNotEqualsRulesMatchRow() {
+    $row = array(
+      'entity_type' => 'node',
+      'pattern_storage_id' => 'k9',
+      'page_storage_id' => 'yard1',
+      'display_storage_type' => 'doghouse',
+      'display_storage_id' => 'woofhouse9',
+      'display_layout' => 'single',
+      'build_mode' => 'default',
+      'style_mode' => 'boxed_corners',
+      'bundle' => 'page',
+    );
+    $rules = array(array('style_mode', '<>', 'rounded_corners'));
+    $this->assertTrue(ppr_styleguide_validate_row_rules($row, $rules));
+  }
+
+  /**
+   * Test ppr_styleguide_validate_row_rules() output.
+   */
+  public function testNotEqualsRulesDoNotMatchRow() {
+    $row = array(
+      'entity_type' => 'node',
+      'pattern_storage_id' => 'k9',
+      'page_storage_id' => 'yard1',
+      'display_storage_type' => 'doghouse',
+      'display_storage_id' => 'woofhouse9',
+      'display_layout' => 'single',
+      'build_mode' => 'default',
+      'style_mode' => 'rounded_corners',
+      'bundle' => 'page',
+    );
+    $rules = array(array('style_mode', '<>', 'rounded_corners'));
+    $this->assertFalse(ppr_styleguide_validate_row_rules($row, $rules));
+  }
+
+  /**
+   * Test ppr_styleguide_validate_row_rules() output.
+   */
+  public function testEmptyRowDoesNotMatch() {
+    $row = array();
+    $rules = array(
+      array('bundle', '=', 'page'),
+      array('style_mode', '=', 'rounded_corners'),
+    );
+    $this->assertFalse(ppr_styleguide_validate_row_rules($row, $rules));
+  }
+
+  /**
+   * Test ppr_styleguide_validate_row_rules() output.
+   */
+  public function testEmptyRuleDoesMatch() {
+    $row = array(
+      'entity_type' => 'node',
+      'pattern_storage_id' => 'k9',
+      'page_storage_id' => 'yard1',
+      'display_storage_type' => 'doghouse',
+      'display_storage_id' => 'woofhouse9',
+      'display_layout' => 'single',
+      'build_mode' => 'default',
+      'style_mode' => 'rounded_corners',
+      'bundle' => 'page',
+    );
+    $rules = array();
+    $this->assertTrue(ppr_styleguide_validate_row_rules($row, $rules));
+  }
+
+  /**
+   * Test ppr_styleguide_validate_row() output.
+   */
+  public function testRowMeetsStyleguidePattern() {
+    $row = array(
+      'entity_type' => 'node',
+      'pattern_storage_id' => 'k9',
+      'page_storage_id' => 'yard1',
+      'display_storage_type' => 'doghouse',
+      'display_storage_id' => 'woofhouse9',
+      'display_layout' => 'single',
+      'build_mode' => 'default',
+      'style_mode' => 'rounded_corners',
+      'bundle' => 'page',
+    );
+
+    $styleguide = array(
+      'allowed' => array(
+        '9' => array(
+          array('entity_type', '=', 'node'),
+          array('build_mode', '=', 'default'),
+        ),
+      ),
+      'disallowed' => array(),
+    );
+
+    $expected = array(
+      'status' => 1,
+      'details' => array('9' => TRUE),
+    );
+    $this->assertIdentical($expected, ppr_styleguide_validate_row($row, $styleguide));
+  }
+
+  /**
+   * Test ppr_styleguide_validate_row() output.
+   */
+  public function testRowMeetsMultipleStyleguidePatterns() {
+    $row = array(
+      'entity_type' => 'node',
+      'pattern_storage_id' => 'k9',
+      'page_storage_id' => 'yard1',
+      'display_storage_type' => 'doghouse',
+      'display_storage_id' => 'woofhouse9',
+      'display_layout' => 'single',
+      'build_mode' => 'default',
+      'style_mode' => 'rounded_corners',
+      'bundle' => 'page',
+    );
+
+    $styleguide = array(
+      'allowed' => array(
+        '9' => array(
+          array('bundle', '=', 'page'),
+          array('style_mode', '=', 'rounded_corners'),
+        ),
+        '13' => array(
+          array('entity_type', '=', 'node'),
+          array('build_mode', '=', 'default'),
+        ),
+      ),
+      'disallowed' => array(),
+    );
+
+    $expected = array(
+      'status' => 1,
+      'details' => array('9' => TRUE, '13' => TRUE),
+    );
+    $this->assertIdentical($expected, ppr_styleguide_validate_row($row, $styleguide));
+  }
+
+  /**
+   * Test ppr_styleguide_validate_row() output.
+   */
+  public function testRowFailsStyleguidePattern() {
+    $row = array(
+      'entity_type' => 'node',
+      'pattern_storage_id' => 'k9',
+      'page_storage_id' => 'yard1',
+      'display_storage_type' => 'doghouse',
+      'display_storage_id' => 'woofhouse9',
+      'display_layout' => 'single',
+      'build_mode' => 'search_index',
+      'style_mode' => 'rounded_corners',
+      'bundle' => 'page',
+    );
+
+    $styleguide = array(
+      'allowed' => array(),
+      'disallowed' => array(
+        '9' => array(
+          array('entity_type', '=', 'node'),
+          array('build_mode', '=', 'search_index'),
+        ),
+      ),
+    );
+
+    $expected = array(
+      'status' => 0,
+      'details' => array(
+        '9' => FALSE,
+      ),
+    );
+
+    $this->assertIdentical($expected, ppr_styleguide_validate_row($row, $styleguide));
+  }
+
+  /**
+   * Test ppr_styleguide_validate_row() output.
+   */
+  public function testRowWithMixedResultsFailsStyleguidePattern() {
+    $row = array(
+      'entity_type' => 'node',
+      'pattern_storage_id' => 'k9',
+      'page_storage_id' => 'yard1',
+      'display_storage_type' => 'doghouse',
+      'display_storage_id' => 'woofhouse9',
+      'display_layout' => 'single',
+      'build_mode' => 'search_index',
+      'style_mode' => 'rounded_corners',
+      'bundle' => 'page',
+    );
+
+    $styleguide = array(
+      'allowed' => array(
+        '13' => array(
+          array('display_storage_type', '=', 'doghouse'),
+          array('build_mode', '=', 'search_index'),
+        ),
+      ),
+      'disallowed' => array(
+        '9' => array(
+          array('entity_type', '=', 'node'),
+          array('build_mode', '=', 'search_index'),
+        ),
+      ),
+    );
+
+    $expected = array(
+      'status' => 0,
+      'details' => array(
+        '9' => FALSE,
+        '13' => TRUE,
+      ),
+    );
+
+    $this->assertIdentical($expected, ppr_styleguide_validate_row($row, $styleguide));
+  }
+
+  /**
+   * Test ppr_styleguide_validate_row() output.
+   */
+  public function testRowIsStyleguideNeutral() {
+    $row = array(
+      'entity_type' => 'node',
+      'pattern_storage_id' => 'k9',
+      'page_storage_id' => 'yard1',
+      'display_storage_type' => 'doghouse',
+      'display_storage_id' => 'woofhouse9',
+      'display_layout' => 'single',
+      'build_mode' => 'search_index',
+      'style_mode' => 'rounded_corners',
+      'bundle' => 'page',
+    );
+
+    $styleguide = array(
+      'allowed' => array(
+        array(
+          array('bundle', '=', 'page'),
+          array('style_mode', '=', 'boxed_corners'),
+        ),
+        array(
+          array('entity_type', '=', 'node'),
+          array('build_mode', '=', 'default'),
+        ),
+      ),
+      'disallowed' => array(
+        array(
+          array('entity_type', '=', 'node'),
+          array('build_mode', '=', 'standard'),
+        ),
+        array(
+          array('bundle', '=', 'page'),
+          array('style_mode', '=', ''),
+        ),
+      ),
+    );
+
+    $expected = array('status' => NULL, 'details' => array());
+    $this->assertIdentical($expected, ppr_styleguide_validate_row($row, $styleguide));
+  }
+
+  /**
+   * Test ppr_styleguide_tokenize_rules() output.
+   */
+  public function testRulesTokenize() {
+    $rules = array(
+      'x=y',
+      'c<>f',
+      'b=d',
+      'r=',
+      'm<>',
+      'abc',
+    );
+
+    $expected = array(
+      array('x', '=', 'y'),
+      array('c', '<>', 'f'),
+      array('b', '=', 'd'),
+      array('r', '=', ''),
+      array('m', '<>', ''),
+    );
+
+    $this->assertIdentical($expected, ppr_styleguide_tokenize_rules($rules));
+  }
+
+}

@@ -1,0 +1,149 @@
+<?php
+
+/**
+ * @file
+ * Panels Pane Report Styleguide Web Tests.
+ */
+
+/**
+ * Web tests for the Panels Pane Report Styleguide.
+ *
+ * @ingroup Panels Pane Report
+ */
+class StyleguideWebTestCase extends PanelsPaneReportWebTestBaseCase {
+  protected $profile = 'testing';
+
+  /**
+   * Implements getInfo().
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Panels Panel Report Styleguide Web Tests',
+      'description' => 'Test panels pane report styleguide functionality',
+      'group' => 'Panels Pane Report',
+    );
+  }
+
+  /**
+   * Implements setUp().
+   */
+  public function setUp($modules = array()) {
+    $modules = array_merge($modules, array(
+      'ppr_styleguide',
+      'panels_pane_report',
+    ));
+    parent::setUp($modules);
+  }
+
+  /**
+   * Tests hook_install().
+   */
+  public function testStyleguideFieldsExist() {
+    $this->assertTrue(db_field_exists('panels_pane_report', 'styleguide_status'));
+    $this->assertTrue(db_field_exists('panels_pane_report', 'styleguide_details'));
+  }
+
+  /**
+   * Test filter contains expected filter options.
+   */
+  public function testExpectedFilterOptions() {
+    $admin_user = $this->drupalCreateUser(array(
+      'access panels pane report',
+    ));
+
+    $this->drupalLogin($admin_user);
+    $this->drupalGet('admin/reports/panels-pane-report');
+
+    // Status dropdowns.
+    $this->assertRaw('name="styleguide_status"');
+  }
+
+  /**
+   * Tests styleguide data.
+   */
+  public function testStyleguideRequirements() {
+    $admin_user = $this->drupalCreateUser(array(
+      'access panels pane report',
+      'generate panels pane report',
+    ));
+
+    // Create 4 ppr_styleguide entities.
+    $sg_details = array(
+      array(
+        'title' => 'Fancy Widgets',
+        'allowed' => 1,
+        'rules' => implode(PHP_EOL, array(
+          'bundle=widget',
+          'build_mode=fancy',
+        )),
+      ),
+      array(
+        'title' => 'Standard Burritos',
+        'allowed' => 1,
+        'rules' => implode(PHP_EOL, array(
+          'bundle=burrito',
+          'build_mode=standard',
+        )),
+      ),
+      array(
+        'title' => 'Standard Widgets',
+        'allowed' => 0,
+        'rules' => implode(PHP_EOL, array(
+          'bundle=widget',
+          'build_mode=standard',
+        )),
+      ),
+      array(
+        'title' => 'Fancy Burritos',
+        'allowed' => 0,
+        'rules' => implode(PHP_EOL, array(
+          'bundle=burrito',
+          'build_mode=fancy',
+        )),
+      ),
+    );
+
+    foreach ($sg_details as $sg_options) {
+      $entity_type = 'ppr_styleguide';
+      $entity = entity_create($entity_type, $sg_options);
+      $wrapper = entity_metadata_wrapper($entity_type, $entity);;
+      $wrapper->save();
+    }
+
+    // Create a panel node on which to place other nodes.
+    $panel_node = $this->drupalCreateNode(array('type' => 'panels_node', 'uid' => $admin_user->uid));
+
+    // Add 6 nodes (3 burritos / 3 widgets).
+    $nodes = array(
+      $this->drupalCreateNode(array('type' => 'burrito', 'uid' => $admin_user->uid)),
+      $this->drupalCreateNode(array('type' => 'burrito', 'uid' => $admin_user->uid)),
+      $this->drupalCreateNode(array('type' => 'burrito', 'uid' => $admin_user->uid)),
+      $this->drupalCreateNode(array('type' => 'widget', 'uid' => $admin_user->uid)),
+      $this->drupalCreateNode(array('type' => 'widget', 'uid' => $admin_user->uid)),
+      $this->drupalCreateNode(array('type' => 'widget', 'uid' => $admin_user->uid)),
+    );
+
+    // Create display.
+    $display = self::createNewPanelsDisplay('panels_node', $panel_node->nid);
+
+    // Create the panes and add them to the display.
+    $build_modes = array('fancy', 'standard', 'premium');
+    for ($i = 0; $i < count($nodes); $i++) {
+      $config_array = array('nid' => $nodes[$i]->nid, 'build_mode' => $build_modes[$i % 3]);
+      $pane = self::createNewPanelsPane($config_array, 'node', 'node');
+      self::addPaneToDisplay($display, $pane);
+    }
+
+    // Attempt to login and regenerate the report.
+    $this->drupalLogin($admin_user);
+    $submit_options = array('query' => array('op' => 'Regenerate Report'));
+    $this->drupalGet('admin/reports/panels-pane-report', $submit_options);
+    $this->assertRaw('<div class="ppr-styleguide-pass">✔ Fancy Widgets');
+    $this->assertRaw('<div class="ppr-styleguide-pass">✔ Standard Burritos');
+    $this->assertRaw('<div class="ppr-styleguide-fail">✖ Fancy Burritos');
+    $this->assertRaw('<div class="ppr-styleguide-fail">✖ Standard Widgets');
+    $this->assertRaw('<div class="ppr-styleguide-neutral"></div>');
+
+  }
+
+}

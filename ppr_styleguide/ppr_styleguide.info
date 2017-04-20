@@ -2,6 +2,10 @@ name = Panels Pane Report Styleguide
 description = "Adds styleguide functionality into the Panels Panel Report."
 core = 7.x
 package = Panels
+configure = admin/config/system/panels_pane_report/styleguide
 
 dependencies[] = entity
 dependencies[] = panels_pane_report
+
+files[] = tests/StyleguideUnitTestCase.test
+files[] = tests/StyleguideWebTestCase.test
