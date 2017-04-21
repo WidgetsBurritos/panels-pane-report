@@ -1,3 +1,18 @@
+v1.2
+New Features:
+#2857048: Create web test base case
+#2856866: Identify and implement alter hooks
+#2857782: Initialize ppr_styleguide submodule info and dependencies
+#2853271: Add "No Reference" option to page status filter
+#2852651: Styleguide Compliance
+#2859041: Reorganize Web Test Cases
+
+Bug fixes:
+#2857307: Fix coding standards issues
+#2857794: Strict warning violation
+
+---
+
 v1.1
 #2849677: Test Filters
 #2849784: Test Panels Node Container
