@@ -197,7 +197,8 @@ function ppr_styleguide_validate_row($row, $styleguide = NULL) {
  */
 function ppr_styleguide_validate_row_rules($row, $rules) {
   if (!empty($rules)) {
-    foreach ($rules as list($key, $op, $value)) {
+    foreach ($rules as $rule) {
+      list($key, $op, $value) = $rule;
       if (!isset($key) || !isset($op)) {
         continue;
       }
