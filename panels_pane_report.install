@@ -124,6 +124,16 @@ function panels_pane_report_schema() {
 }
 
 /**
+ * Implements hook_uninstall().
+ */
+function panels_pane_report_uninstall() {
+  // Unset panels_pane_report variables.
+  variable_del('panels_pane_report_cron_interval');
+  variable_del('panels_pane_report_next_run');
+  variable_del('panels_pane_report_last_run');
+}
+
+/**
  * Allow NULL values on page/pattern status.
  */
 function panels_pane_report_update_7001() {
