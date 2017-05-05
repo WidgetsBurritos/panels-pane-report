@@ -1,3 +1,10 @@
+v1.3
+New Features:
+#2876148: Clean up variables when the module is uninstalled (by thepractice)
+#2871946: Include panel (layout region) in report (by WidgetsBurritos)
+
+---
+
 v1.2
 New Features:
 #2857048: Create web test base case
