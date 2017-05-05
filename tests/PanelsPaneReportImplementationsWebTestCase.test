@@ -74,6 +74,7 @@ class PanelsPaneReportImplementationsWebTestCase extends PanelsPaneReportWebTest
     $this->assertRaw('<a href="' . url('node/' . $pane_node->nid) . '" target="_blank">node/' . $pane_node->nid . '</a>');
     $this->assertRaw('<a href="' . url('node/' . $panels_node->nid) . '" target="_blank">node/' . $panels_node->nid . '</a>');
     $this->assertText('panels_node [' . $panels_node->nid . ']');
+    $this->assertText('Panel: left');
     $this->assertText('Layout: twocol');
   }
 
@@ -123,6 +124,7 @@ class PanelsPaneReportImplementationsWebTestCase extends PanelsPaneReportWebTest
     $this->assertRaw('<a href="' . url('node/' . $node1->nid) . '" target="_blank">node/' . $node1->nid . '</a>');
     $this->assertRaw('<a href="' . url('node/' . $node2->nid) . '" target="_blank">node/' . $node2->nid . '</a>');
     $this->assertText('panels_mini [' . $mp_name . ']');
+    $this->assertText('Panel: left');
     $this->assertText('Layout: twocol');
   }
 
@@ -171,6 +173,7 @@ class PanelsPaneReportImplementationsWebTestCase extends PanelsPaneReportWebTest
     $this->assertRaw('<a href="' . url('admin/structure/mini-panels/list/' . $mp->name) . '" target="_blank">' . $mp->name . '</a>');
     $this->assertRaw('<a href="' . url('node/' . $node->nid) . '" target="_blank">node/' . $node->nid . '</a>');
     $this->assertText('panels_node [' . $node->nid . ']');
+    $this->assertText('Panel: left');
     $this->assertText('Layout: twocol');
   }
 
@@ -286,6 +289,7 @@ class PanelsPaneReportImplementationsWebTestCase extends PanelsPaneReportWebTest
     $this->assertRaw('<a href="' . url('node/' . $pane_node->nid) . '" target="_blank">node/' . $pane_node->nid . '</a>');
     $this->assertRaw('<a href="' . url('node/' . $panelizer_node->nid) . '" target="_blank">node/' . $panelizer_node->nid . '</a>');
     $this->assertText('panelizer_entity [' . $storage_id . ']');
+    $this->assertText('Panel: left');
     $this->assertText('Layout: twocol');
   }
 

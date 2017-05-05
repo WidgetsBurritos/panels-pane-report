@@ -45,6 +45,7 @@ class PanelsPaneReportFiltersWebTestCase extends PanelsPaneReportWebTestBaseCase
       'build_mode' => 'retriever',
       'style_mode' => 'golden',
       'bundle' => 'litter',
+      'panel' => 'bottom',
     );
     PanelsPaneReport::reportItem($row);
 
@@ -72,6 +73,9 @@ class PanelsPaneReportFiltersWebTestCase extends PanelsPaneReportWebTestBaseCase
 
     // Container Layout.
     $this->assertRaw('<option value="single">single</option>');
+
+    // Panel.
+    $this->assertRaw('<option value="bottom">bottom</option>');
 
     // True/false/null filters.
     $this->assertRaw('<option value="1">✔ True</option>');

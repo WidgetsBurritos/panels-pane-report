@@ -144,6 +144,15 @@ function panels_pane_report_views_data() {
     'filter' => array('handler' => 'panels_pane_report_display_layout'),
   );
 
+  // The display layout field.
+  $data['panels_pane_report']['panel'] = array(
+    'title' => t('Panel'),
+    'help' => t('Indicates what panel the pane is in.'),
+    'field' => array('handler' => 'views_handler_field'),
+    'sort' => array('handler' => 'views_handler_sort'),
+    'filter' => array('handler' => 'panels_pane_report_panel'),
+  );
+
   return $data;
 }
 
@@ -199,6 +208,13 @@ function _panels_pane_report_view_panels_pane_report() {
   $handler->display->display_options['header']['result']['field'] = 'result';
   $handler->display->display_options['header']['result']['empty'] = TRUE;
   $handler->display->display_options['header']['result']['content'] = '<strong>Displaying:</strong> @start - @end of @total';
+  /* Field: Panels Pane Report: Panel */
+  $handler->display->display_options['fields']['panel']['id'] = 'panel';
+  $handler->display->display_options['fields']['panel']['table'] = 'panels_pane_report';
+  $handler->display->display_options['fields']['panel']['field'] = 'panel';
+  $handler->display->display_options['fields']['panel']['label'] = '';
+  $handler->display->display_options['fields']['panel']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['panel']['element_label_colon'] = FALSE;
   /* Field: Panels Pane Report: Bundle */
   $handler->display->display_options['fields']['bundle']['id'] = 'bundle';
   $handler->display->display_options['fields']['bundle']['table'] = 'panels_pane_report';
@@ -299,7 +315,7 @@ function _panels_pane_report_view_panels_pane_report() {
   $handler->display->display_options['fields']['display_storage_type']['field'] = 'display_storage_type';
   $handler->display->display_options['fields']['display_storage_type']['label'] = 'Container';
   $handler->display->display_options['fields']['display_storage_type']['alter']['alter_text'] = TRUE;
-  $handler->display->display_options['fields']['display_storage_type']['alter']['text'] = '[display_storage_type] [[display_storage_id]]<br>Layout: [display_layout]';
+  $handler->display->display_options['fields']['display_storage_type']['alter']['text'] = '[display_storage_type] [[display_storage_id]]<br>Panel: [panel]<br>Layout: [display_layout]';
   /* Sort criterion: Panels Pane Report: Entity Type */
   $handler->display->display_options['sorts']['entity_type']['id'] = 'entity_type';
   $handler->display->display_options['sorts']['entity_type']['table'] = 'panels_pane_report';
@@ -538,6 +554,21 @@ function _panels_pane_report_view_panels_pane_report() {
     1 => 0,
     3 => 0,
   );
+  /* Filter criterion: Panels Pane Report: Panel */
+  $handler->display->display_options['filters']['panel']['id'] = 'panel';
+  $handler->display->display_options['filters']['panel']['table'] = 'panels_pane_report';
+  $handler->display->display_options['filters']['panel']['field'] = 'panel';
+  $handler->display->display_options['filters']['panel']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['panel']['expose']['operator_id'] = 'panel_op';
+  $handler->display->display_options['filters']['panel']['expose']['label'] = 'Panel';
+  $handler->display->display_options['filters']['panel']['expose']['operator'] = 'panel_op';
+  $handler->display->display_options['filters']['panel']['expose']['identifier'] = 'panel';
+  $handler->display->display_options['filters']['panel']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    3 => 0,
+  );
+
 
   /* Display: Page */
   $handler = $view->new_display('page', 'Page', 'page');
