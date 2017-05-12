@@ -15,7 +15,7 @@ function ppr_styleguide_views_data_alter(&$data) {
     'help' => t('Status of the styleguide validation.'),
     'field' => array('handler' => 'PanelsPaneReportStyleguideStatusField'),
     'sort' => array('handler' => 'views_handler_sort'),
-    'filter' => array('handler' => 'panels_pane_report_views_handler_filter_true_false_null_operator'),
+    'filter' => array('handler' => 'PanelsPaneReportStyleguideFilter'),
   );
 
   // The styleguide details field.
@@ -96,6 +96,50 @@ class PanelsPaneReportStyleguideStatusField extends views_handler_field_boolean 
     }
     $html .= '</div>';
     return $html;
+  }
+
+}
+
+/**
+ * Filter styleguide options.
+ */
+class PanelsPaneReportStyleguideFilter extends panels_pane_report_views_handler_filter_true_false_null_operator {
+
+  /**
+   * Override get_value_options().
+   */
+  function get_value_options() {
+    parent::get_value_options();
+    $results = db_query('SELECT DISTINCT title, sgid, allowed FROM {ppr_styleguide}', array(), array('target' => 'slave'))->fetchAll();
+    if (!empty($results)) {
+      $this->value_options[NULL] = '-------------';
+      foreach ($results as $row) {
+        $idx = "sg:{$row->sgid}";
+        $status = ($row->allowed) ? '✔' : '✖';
+        $this->value_options[$idx] = "{$status} {$row->title}";
+      }
+    }
+  }
+
+  /**
+   * Override query().
+   */
+  function query() {
+    $this->ensure_my_table();
+    $field = "$this->table_alias.$this->real_field";
+    if ($this->value === '1') {
+      $this->query->add_where($this->options['group'], $field, 1, '=');
+    }
+    elseif ($this->value === '0') {
+      $this->query->add_where($this->options['group'], $field, 0, '=');
+    }
+    elseif ($this->value === '-1') {
+      $this->query->add_where($this->options['group'], $field, NULL, 'IS NULL');
+    }
+    elseif (preg_match('/^sg:(\d+)$/', $this->value, $matches)) {
+      $like_str = ppr_styleguide_assemble_like_str($matches[1]);
+      $this->query->add_where($this->options['group'], '{styleguide_details}', $like_str, 'LIKE');
+    }
   }
 
 }

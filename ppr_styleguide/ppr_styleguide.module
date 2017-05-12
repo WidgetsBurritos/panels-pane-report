@@ -262,3 +262,16 @@ function ppr_styleguide_retrieve_styleguide() {
 
   return $styleguide;
 }
+
+/**
+ * Attempts to assemble a database like string based on a specified $id.
+ */
+function ppr_styleguide_assemble_like_str($id) {
+  // NOTE: This could potentially be dangerous. It's important to ensure
+  // that id only ever numeric.
+  if (!is_numeric($id)) {
+    return "";
+  }
+
+  return "a:%:{%i:{$id};%}";
+}

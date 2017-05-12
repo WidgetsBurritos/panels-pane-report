@@ -52,10 +52,46 @@ class StyleguideWebTestCase extends PanelsPaneReportWebTestBaseCase {
     ));
 
     $this->drupalLogin($admin_user);
-    $this->drupalGet('admin/reports/panels-pane-report');
 
-    // Status dropdowns.
+    // Load the report an initial time. Since there are no ppr_styleguide
+    // entities, we should have a styleguide filter without a separator option.
+    $this->drupalGet('admin/reports/panels-pane-report');
     $this->assertRaw('name="styleguide_status"');
+    $this->assertNoRaw('<option value="">-------------</option>');
+
+    // Create 2 ppr_styleguide entities.
+    $sg_details = array(
+      array(
+        'title' => 'Fancy Widgets',
+        'allowed' => 1,
+        'rules' => implode(PHP_EOL, array(
+          'bundle=widget',
+          'build_mode=fancy',
+        )),
+      ),
+      array(
+        'title' => 'Standard Widgets',
+        'allowed' => 0,
+        'rules' => implode(PHP_EOL, array(
+          'bundle=widget',
+          'build_mode=standard',
+        )),
+      ),
+    );
+
+    foreach ($sg_details as $sg_options) {
+      $entity_type = 'ppr_styleguide';
+      $entity = entity_create($entity_type, $sg_options);
+      $wrapper = entity_metadata_wrapper($entity_type, $entity);;
+      $wrapper->save();
+    }
+
+    // Load the report a second time. Now we should see a separator and the
+    // newly created rule options.
+    $this->drupalGet('admin/reports/panels-pane-report');
+    $this->assertRaw('<option value="">-------------</option>');
+    $this->assertRaw('<option value="sg:1">✔ Fancy Widgets</option>');
+    $this->assertRaw('<option value="sg:2">✖ Standard Widgets</option>');
   }
 
   /**
@@ -144,6 +180,18 @@ class StyleguideWebTestCase extends PanelsPaneReportWebTestBaseCase {
     $this->assertRaw('<div class="ppr-styleguide-fail">✖ Standard Widgets');
     $this->assertRaw('<div class="ppr-styleguide-neutral"></div>');
 
+    // Confirm filter switch only shows relevant results.
+    $submit_options = array(
+      'query' => array(
+        'styleguide_status' => 'sg:2',
+      ),
+    );
+    $this->drupalGet('admin/reports/panels-pane-report', $submit_options);
+    $this->assertRaw('<div class="ppr-styleguide-pass">✔ Standard Burritos');
+    $this->assertNoRaw('<div class="ppr-styleguide-pass">✔ Fancy Widgets');
+    $this->assertNoRaw('<div class="ppr-styleguide-fail">✖ Fancy Burritos');
+    $this->assertNoRaw('<div class="ppr-styleguide-fail">✖ Standard Widgets');
+    $this->assertNoRaw('<div class="ppr-styleguide-neutral"></div>');
   }
 
 }

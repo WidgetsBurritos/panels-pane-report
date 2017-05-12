@@ -359,4 +359,76 @@ class StyleguideUnitTestCase extends DrupalUnitTestCase {
     $this->assertIdentical($expected, ppr_styleguide_tokenize_rules($rules));
   }
 
+  /**
+   * Test ppr_styleguide_assemble_like_str().
+   */
+  public function testIntegerIdInLikeString() {
+    $expected = 'a:%:{%i:15;%}';
+    $result = ppr_styleguide_assemble_like_str(15);
+    $this->assertEqual($expected, $result);
+  }
+
+  /**
+   * Test ppr_styleguide_assemble_like_str().
+   */
+  public function testNumericStringIdInLikeString() {
+    $expected = 'a:%:{%i:15;%}';
+    $result = ppr_styleguide_assemble_like_str("15");
+    $this->assertEqual($expected, $result);
+  }
+
+  /**
+   * Test ppr_styleguide_assemble_like_str().
+   */
+  public function testStringIdInLikeString() {
+    $expected = '';
+    $result = ppr_styleguide_assemble_like_str("some string");
+    $this->assertEqual($expected, $result);
+  }
+
+  /**
+   * Test ppr_styleguide_assemble_like_str().
+   */
+  public function testHybridStringIdInLikeString() {
+    $expected = '';
+    $result = ppr_styleguide_assemble_like_str("15'abc");
+    $this->assertEqual($expected, $result);
+  }
+
+  /**
+   * Test ppr_styleguide_assemble_like_str().
+   */
+  public function testMissingIdInLikeString() {
+    $expected = '';
+    $result = @ppr_styleguide_assemble_like_str();
+    $this->assertEqual($expected, $result);
+  }
+
+  /**
+   * Test ppr_styleguide_assemble_like_str().
+   */
+  public function testNullIdInLikeString() {
+    $expected = '';
+    $result = ppr_styleguide_assemble_like_str(NULL);
+    $this->assertEqual($expected, $result);
+  }
+
+  /**
+   * Test ppr_styleguide_assemble_like_str().
+   */
+  public function testArrayIdInLikeString() {
+    $expected = '';
+    $result = ppr_styleguide_assemble_like_str(array(15));
+    $this->assertEqual($expected, $result);
+  }
+
+  /**
+   * Test ppr_styleguide_assemble_like_str().
+   */
+  public function testObjectIdInLikeString() {
+    $expected = '';
+    $result = ppr_styleguide_assemble_like_str(new stdClass());
+    $this->assertEqual($expected, $result);
+  }
+
 }
