@@ -398,15 +398,6 @@ class StyleguideUnitTestCase extends DrupalUnitTestCase {
   /**
    * Test ppr_styleguide_assemble_like_str().
    */
-  public function testMissingIdInLikeString() {
-    $expected = '';
-    $result = @ppr_styleguide_assemble_like_str();
-    $this->assertEqual($expected, $result);
-  }
-
-  /**
-   * Test ppr_styleguide_assemble_like_str().
-   */
   public function testNullIdInLikeString() {
     $expected = '';
     $result = ppr_styleguide_assemble_like_str(NULL);
