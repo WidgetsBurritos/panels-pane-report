@@ -264,6 +264,33 @@ function ppr_styleguide_retrieve_styleguide() {
 }
 
 /**
+ * Retrieves rules contradicting specified status.
+ */
+function ppr_styleguide_retrieve_non_matching_rules_by_status($status = 0) {
+  $rows = db_select('panels_pane_report', 'ppr')
+    ->fields('ppr', array('styleguide_details'))
+    ->condition('styleguide_status', $status, '=')
+    ->execute()
+    ->fetchCol();
+  $non_matching = array();
+  foreach ($rows as $row) {
+    $row_ary = unserialize($row);
+    foreach ($row_ary as $sgcid => $passing) {
+      if (!$passing === !$status) {
+        if (!isset($non_matching[$sgcid])) {
+          $non_matching[$sgcid] = 0;
+        }
+        $non_matching[$sgcid]++;
+      }
+    }
+  }
+
+  ksort($non_matching);
+  return $non_matching;
+}
+
+
+/**
  * Attempts to assemble a database like string based on a specified $id.
  */
 function ppr_styleguide_assemble_like_str($id) {
